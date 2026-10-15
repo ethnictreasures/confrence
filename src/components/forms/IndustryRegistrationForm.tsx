@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Upload, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function IndustryRegistrationForm() {
@@ -38,6 +38,7 @@ export default function IndustryRegistrationForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contentType: file.type,
+          size: file.size,
         }),
       });
 

@@ -4,17 +4,28 @@ A production-ready conference registration platform with document verification, 
 
 ## Features
 
-- **Public Registration**: Three registration categories (Student, Industry Professional, Other) with category-specific forms
+- **Public Registration**: Student and Industry Professional categories; historical Other records remain available in administration
 - **Document Upload**: Secure document uploads to Cloudflare R2 with presigned URLs
-- **Payment Integration**: Razorpay Payment Links integration with webhook processing
+- **Payment Integration**: Two fixed Razorpay Payment Links, signed webhook processing, and audited manual reconciliation
 - **Admin Dashboard**: Comprehensive dashboard with analytics, registration management, and verification workflows
 - **Secure Authentication**: Server-side admin authentication with NextAuth.js
 - **Audit Logging**: Complete audit trail for all administrative actions
 - **CSV Export**: Export registration data with filters
 
+## Conference
+
+- Organizer: JUST POLYMER SOLUTIONS
+- Initiative: Chem Petchem Education Drive
+- Programme: Virtual Industry Programme
+- Title: Automotive Industry: The Materials & Mobility Revolution
+- Dates: October 31 – November 1, 2026 (virtual)
+- Fees: Student ₹1,300 + GST ₹234 = ₹1,534; Industry Professional ₹6,000 + GST ₹1,080 = ₹7,080
+
+GST values are organizer-configured and are not tax advice. Confirm the applicable GST treatment with the organizer's accountant.
+
 ## Technology Stack
 
-- **Framework**: Next.js 14+ with App Router
+- **Framework**: Next.js 16 App Router
 - **Language**: TypeScript
 - **Database**: Neon PostgreSQL with Drizzle ORM
 - **Storage**: Cloudflare R2 (S3-compatible)
@@ -43,10 +54,10 @@ npm install
 
 ### 2. Environment Configuration
 
-Copy the environment template and configure your credentials:
+Copy the environment template and configure your server-only credentials:
 
 ```bash
-cp ENV_EXAMPLE.txt .env
+cp .env.example .env
 ```
 
 Edit `.env` with your actual credentials:
@@ -90,13 +101,9 @@ openssl rand -base64 32
 2. Create a new project
 3. Copy the connection string to your `.env` file
 
-#### Run Migrations
+#### Apply the Additive Payment Migration
 
-```bash
-npm run db:push
-```
-
-This will create all required tables in your database.
+Review `drizzle/0001_pricing_payment_reconciliation.sql`, then apply it to the existing Neon database with your normal migration procedure. It adds fee snapshots, refund rows, and unresolved webhook-event storage; it does not delete or rewrite existing registrations. Do not use `db:push` against production without reviewing its proposed changes.
 
 #### Seed Admin User
 
@@ -104,11 +111,7 @@ This will create all required tables in your database.
 npm run db:seed
 ```
 
-Default admin credentials:
-- Email: `admin@techconference2025.com`
-- Password: `admin123`
-
-**Important**: Change this password after first login!
+The seed requires `ADMIN_SEED_EMAIL`, `ADMIN_SEED_NAME`, and a unique `ADMIN_SEED_PASSWORD` of at least 12 characters. It does not print the password and does not replace an existing account with the same email.
 
 ### 5. Cloudflare R2 Setup
 
@@ -131,18 +134,18 @@ R2_BUCKET_NAME=your_bucket_name
 
 ### 6. Razorpay Setup
 
-#### Create Payment Links
+#### Configure the Existing Fixed Payment Links
 
 1. Sign up at [Razorpay](https://razorpay.com)
-2. Go to Payment Links → Create
-3. Create separate links for each category (Student, Industry, Other)
-4. Copy the Payment Link IDs
+2. Confirm the existing Student Payment Link is ₹1,534 and the Industry Professional Payment Link is ₹7,080, both in INR and with partial payments disabled.
+3. Set `STUDENT_RAZORPAY_PAYMENT_LINK_URL`, `STUDENT_RAZORPAY_PAYMENT_LINK_ID`, `PROFESSIONAL_RAZORPAY_PAYMENT_LINK_URL`, and `PROFESSIONAL_RAZORPAY_PAYMENT_LINK_ID` in the server environment. Use the real values from your Razorpay Dashboard; no IDs are committed.
+4. The app fetches each Payment Link server-side and verifies its ID, hosted URL, amount, currency, and that partial payments are disabled. Expired or cancelled links are rejected. Because many participants share the same link, keep those two links open for repeated payments in the Razorpay Dashboard.
 
 #### Configure Webhook
 
 1. Go to Settings → Webhooks
 2. Add webhook URL: `https://your-domain.com/api/webhooks/razorpay`
-3. Select events: `payment_link.paid`, `payment_link.failed`, `payment_link.expired`
+3. Subscribe to `payment_link.paid`, `payment_link.partially_paid`, `payment_link.expired`, `payment_link.cancelled`, `payment.captured`, `payment.failed`, `refund.created`, `refund.processed`, `refund.failed`, and `refund.speed_changed`
 4. Copy the webhook secret
 
 #### Environment Variables
@@ -151,6 +154,10 @@ R2_BUCKET_NAME=your_bucket_name
 RAZORPAY_KEY_ID=your_key_id
 RAZORPAY_KEY_SECRET=your_key_secret
 RAZORPAY_WEBHOOK_SECRET=your_webhook_secret
+STUDENT_RAZORPAY_PAYMENT_LINK_URL=https://rzp.io/rzp/replace_with_student_link
+STUDENT_RAZORPAY_PAYMENT_LINK_ID=plink_replace_with_student_id
+PROFESSIONAL_RAZORPAY_PAYMENT_LINK_URL=https://rzp.io/rzp/replace_with_professional_link
+PROFESSIONAL_RAZORPAY_PAYMENT_LINK_ID=plink_replace_with_professional_id
 ```
 
 ### 7. Run Development Server
@@ -252,7 +259,6 @@ seminar/
 - `POST /api/upload/presign` - Generate presigned upload URL
 - `POST /api/register/student` - Submit student registration
 - `POST /api/register/industry` - Submit industry registration
-- `POST /api/register/other` - Submit other registration
 - `POST /api/webhooks/razorpay` - Razorpay webhook handler
 
 ### Admin APIs
@@ -303,7 +309,6 @@ seminar/
 - [ ] Registration category selection works
 - [ ] Student form validates correctly
 - [ ] Industry form validates correctly
-- [ ] Other form validates correctly
 - [ ] Document upload shows progress
 - [ ] Form submission creates registration record
 - [ ] Registration number is generated
@@ -379,9 +384,7 @@ seminar/
 
 ## Support
 
-For issues or questions:
-- Email: support@techconference2025.com
-- Check the documentation at the admin dashboard
+For issues or questions, contact the conference organizer. Do not treat GST figures on this site as tax advice.
 
 ## License
 

@@ -1,181 +1,65 @@
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { auth, isAdminRole } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Save } from 'lucide-react';
-import Link from 'next/link';
+import { CONFERENCE, REGISTRATION_PRICING } from '@/config/conference';
+import { ArrowLeft } from 'lucide-react';
+
+const inr = (paise: number) => `₹${(paise / 100).toLocaleString('en-IN')}`;
 
 export default async function AdminSettingsPage() {
   const session = await auth();
+  if (!session || !isAdminRole(session.user.role)) redirect('/admin/login');
 
-  if (!session || !isAdminRole(session.user.role)) {
-    redirect('/admin/login');
-  }
+  const linksConfigured = Boolean(
+    process.env.STUDENT_RAZORPAY_PAYMENT_LINK_ID &&
+    process.env.STUDENT_RAZORPAY_PAYMENT_LINK_URL &&
+    process.env.PROFESSIONAL_RAZORPAY_PAYMENT_LINK_ID &&
+    process.env.PROFESSIONAL_RAZORPAY_PAYMENT_LINK_URL
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="border-b border-gray-200 bg-white">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/admin/dashboard">
-                <Button variant="ghost" size="sm">
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back to Dashboard
-                </Button>
-              </Link>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-                <p className="text-sm text-gray-600">Configure conference settings</p>
-              </div>
-            </div>
-          </div>
+    <main className="min-h-screen bg-gray-50">
+      <header className="border-b border-gray-200 bg-white">
+        <div className="container mx-auto flex items-center justify-between px-4 py-4">
+          <div><p className="text-sm text-gray-600">Conference administration</p><h1 className="text-2xl font-bold text-gray-900">Configuration</h1></div>
+          <Link href="/admin/dashboard"><Button variant="outline"><ArrowLeft className="mr-2 h-4 w-4" />Dashboard</Button></Link>
         </div>
+      </header>
+      <div className="container mx-auto grid max-w-5xl gap-6 px-4 py-8 md:grid-cols-2">
+        <Card>
+          <CardHeader><CardTitle>Conference</CardTitle><CardDescription>Public event details configured in application settings.</CardDescription></CardHeader>
+          <CardContent className="space-y-3 text-sm">
+            <p><span className="font-medium">Organizer:</span> {CONFERENCE.organizer}</p>
+            <p><span className="font-medium">Initiative:</span> {CONFERENCE.initiative}</p>
+            <p><span className="font-medium">Programme:</span> {CONFERENCE.programme}</p>
+            <p><span className="font-medium">Title:</span> {CONFERENCE.title}</p>
+            <p><span className="font-medium">Dates:</span> {CONFERENCE.dates}</p>
+            <p><span className="font-medium">Format:</span> Virtual</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader><CardTitle>Registration pricing</CardTitle><CardDescription>Authoritative server-side amounts. Confirm GST treatment with the organizer’s accountant.</CardDescription></CardHeader>
+          <CardContent className="space-y-4 text-sm">
+            {Object.entries(REGISTRATION_PRICING).map(([type, pricing]) => (
+              <div key={type} className="border-b border-gray-100 pb-3 last:border-0">
+                <p className="font-semibold">{type === 'student' ? 'Student' : 'Industry Professional'}</p>
+                <p className="mt-1 text-gray-600">Base {inr(pricing.baseFeePaise)} · GST ({pricing.gstRate}%) {inr(pricing.gstAmountPaise)} · Total {inr(pricing.totalAmountPaise)}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+        <Card className="md:col-span-2">
+          <CardHeader><CardTitle>Razorpay Payment Links</CardTitle><CardDescription>Link IDs and URLs are server-only environment variables and are never displayed here.</CardDescription></CardHeader>
+          <CardContent>
+            <p role="status" className={linksConfigured ? 'text-sm text-green-800' : 'text-sm text-amber-800'}>
+              {linksConfigured ? 'Both category link configurations are present. Each link is fetched and validated against its configured amount before use.' : 'Payment links are not fully configured. Payments remain unavailable until both category link IDs and URLs are set.'}
+            </p>
+            <p className="mt-3 text-xs text-gray-500">Set STUDENT_RAZORPAY_PAYMENT_LINK_ID/URL and PROFESSIONAL_RAZORPAY_PAYMENT_LINK_ID/URL in the server environment.</p>
+          </CardContent>
+        </Card>
       </div>
-
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-3xl space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Conference Information</CardTitle>
-              <CardDescription>
-                Update conference details and public information
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="conferenceName">Conference Name</Label>
-                <Input id="conferenceName" defaultValue="Tech Conference 2025" />
-              </div>
-              <div>
-                <Label htmlFor="conferenceSubtitle">Subtitle</Label>
-                <Input id="conferenceSubtitle" defaultValue="Innovation, Learning, and Networking" />
-              </div>
-              <div>
-                <Label htmlFor="conferenceDate">Date</Label>
-                <Input id="conferenceDate" defaultValue="March 15-17, 2025" />
-              </div>
-              <div>
-                <Label htmlFor="conferenceVenue">Venue</Label>
-                <Input id="conferenceVenue" defaultValue="Convention Center, Bangalore" />
-              </div>
-              <div>
-                <Label htmlFor="conferenceDescription">Description</Label>
-                <textarea
-                  id="conferenceDescription"
-                  className="flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 min-h-[100px]"
-                  defaultValue="Join us for three days of inspiring talks, workshops, and networking opportunities with industry leaders and innovators from around the world."
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Registration Fees</CardTitle>
-              <CardDescription>
-                Set registration fees for each category
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="studentFee">Student Fee (₹)</Label>
-                <Input id="studentFee" type="number" defaultValue="1500" />
-              </div>
-              <div>
-                <Label htmlFor="industryFee">Industry Professional Fee (₹)</Label>
-                <Input id="industryFee" type="number" defaultValue="3000" />
-              </div>
-              <div>
-                <Label htmlFor="otherFee">Other Participant Fee (₹)</Label>
-                <Input id="otherFee" type="number" defaultValue="2000" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Payment Links</CardTitle>
-              <CardDescription>
-                Configure Razorpay Payment Links for each category
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="studentPaymentLink">Student Payment Link ID</Label>
-                <Input id="studentPaymentLink" placeholder="Enter Razorpay Payment Link ID" />
-              </div>
-              <div>
-                <Label htmlFor="industryPaymentLink">Industry Payment Link ID</Label>
-                <Input id="industryPaymentLink" placeholder="Enter Razorpay Payment Link ID" />
-              </div>
-              <div>
-                <Label htmlFor="otherPaymentLink">Other Payment Link ID</Label>
-                <Input id="otherPaymentLink" placeholder="Enter Razorpay Payment Link ID" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Document Settings</CardTitle>
-              <CardDescription>
-                Configure document upload requirements
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="documentSizeLimit">File Size Limit (MB)</Label>
-                <Input id="documentSizeLimit" type="number" defaultValue="5" min="1" max="20" />
-              </div>
-              <div>
-                <Label htmlFor="allowedFileTypes">Allowed File Types</Label>
-                <Input
-                  id="allowedFileTypes"
-                  defaultValue="image/jpeg, image/png, application/pdf"
-                  placeholder="Comma-separated MIME types"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Registration Status</CardTitle>
-              <CardDescription>
-                Control registration availability
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-base">Registration Open</Label>
-                  <p className="text-sm text-gray-600">
-                    Allow new registrations to be submitted
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-600">Closed</span>
-                  <div className="w-12 h-6 bg-blue-600 rounded-full relative cursor-pointer">
-                    <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full" />
-                  </div>
-                  <span className="text-sm text-gray-600">Open</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="flex justify-end gap-4">
-            <Button variant="outline">Cancel</Button>
-            <Button>
-              <Save className="w-4 h-4 mr-2" />
-              Save Settings
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
+    </main>
   );
 }

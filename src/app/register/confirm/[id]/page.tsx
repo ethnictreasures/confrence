@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, XCircle, Clock, RefreshCw, Download } from 'lucide-react';
+import { CheckCircle, Clock, RefreshCw, Download } from 'lucide-react';
 import Link from 'next/link';
 
 async function getRegistration(id: string) {
@@ -22,14 +22,17 @@ async function getRegistration(id: string) {
   }
 }
 
-export default async function ConfirmPage({ params }: { params: { id: string } }) {
-  const registration = await getRegistration(params.id);
+export default async function ConfirmPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const registration = await getRegistration(id);
 
   if (!registration) {
     notFound();
   }
 
   const isPaid = registration.paymentStatus === 'paid';
+  const isPaymentComplete = isPaid;
+  const canRetryPayment = ['pending', 'failed', 'expired', 'partially_paid'].includes(registration.paymentStatus);
   const isVerified = registration.verificationStatus === 'approved';
 
   return (
@@ -87,12 +90,20 @@ export default async function ConfirmPage({ params }: { params: { id: string } }
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Amount Paid:</span>
-                    <span className="font-semibold">
-                      {registration.paymentAmount
-                        ? `₹${Number(registration.paymentAmount).toLocaleString()}`
-                        : 'N/A'}
-                    </span>
+                    <span className="text-gray-600">Base fee:</span>
+                    <span className="font-medium">{registration.baseFeePaise === null ? 'N/A' : `₹${(registration.baseFeePaise / 100).toLocaleString('en-IN')}`}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">GST ({registration.gstRate ?? 'N/A'}%):</span>
+                    <span className="font-medium">{registration.gstAmountPaise === null ? 'N/A' : `₹${(registration.gstAmountPaise / 100).toLocaleString('en-IN')}`}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-semibold text-gray-800">Total payable:</span>
+                    <span className="font-semibold">{registration.totalAmountPaise === null ? (registration.paymentAmount ? `₹${Number(registration.paymentAmount).toLocaleString('en-IN')}` : 'N/A') : `₹${(registration.totalAmountPaise / 100).toLocaleString('en-IN')}`}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Amount received:</span>
+                    <span className="font-medium">₹{(registration.amountPaidPaise / 100).toLocaleString('en-IN')}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Payment Reference:</span>
@@ -123,7 +134,7 @@ export default async function ConfirmPage({ params }: { params: { id: string } }
                 </div>
               </div>
 
-              {!isPaid && (
+              {canRetryPayment && (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                   <h3 className="font-semibold text-yellow-900 mb-2">Payment Not Complete</h3>
                   <p className="text-sm text-gray-700 mb-4">
@@ -137,7 +148,21 @@ export default async function ConfirmPage({ params }: { params: { id: string } }
                 </div>
               )}
 
-              {isPaid && !isVerified && (
+              {registration.paymentStatus === 'requires_reconciliation' && (
+                <div className="rounded-lg border border-orange-200 bg-orange-50 p-4">
+                  <h3 className="mb-2 font-semibold text-orange-900">Payment requires confirmation</h3>
+                  <p className="text-sm text-gray-700">We received a payment event that needs manual verification. Do not pay again until the organizer confirms its status.</p>
+                </div>
+              )}
+
+              {(registration.paymentStatus === 'partially_refunded' || registration.paymentStatus === 'refunded') && (
+                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+                  <h3 className="mb-2 font-semibold text-blue-900">Payment {registration.paymentStatus.replace('_', ' ')}</h3>
+                  <p className="text-sm text-gray-700">Contact the conference organizer for assistance with this refund.</p>
+                </div>
+              )}
+
+              {isPaymentComplete && !isVerified && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <h3 className="font-semibold text-blue-900 mb-2">Document Verification Pending</h3>
                   <p className="text-sm text-gray-700">
@@ -146,7 +171,7 @@ export default async function ConfirmPage({ params }: { params: { id: string } }
                 </div>
               )}
 
-              {isPaid && isVerified && (
+              {isPaymentComplete && isVerified && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                   <h3 className="font-semibold text-green-900 mb-2">Registration Complete</h3>
                   <p className="text-sm text-gray-700 mb-4">
@@ -174,7 +199,7 @@ export default async function ConfirmPage({ params }: { params: { id: string } }
               </div>
 
               <div className="text-center text-sm text-gray-500">
-                <p>For assistance, contact us at support@techconference2025.com</p>
+                <p>For assistance, contact the conference organizer.</p>
               </div>
             </CardContent>
           </Card>

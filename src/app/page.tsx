@@ -1,228 +1,279 @@
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import Image from 'next/image';
+import type { Metadata } from 'next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { GraduationCap, Briefcase, Users, Calendar, MapPin, CheckCircle } from 'lucide-react';
+import {
+  ArrowDown,
+  ArrowRight,
+  ArrowUpRight,
+  CalendarDays,
+  Check,
+  ClipboardCheck,
+  CreditCard,
+  GraduationCap,
+  MonitorPlay,
+  UsersRound,
+} from 'lucide-react';
+import { CONFERENCE, REGISTRATION_PRICING } from '@/config/conference';
+
+export const metadata: Metadata = {
+  title: 'Automotive Industry: The Materials & Mobility Revolution | JUST POLYMER SOLUTIONS',
+  description: 'Join the virtual industry programme on October 31 – November 1, 2026, bringing students and industry professionals together to explore the automotive materials and mobility value chain.',
+};
+
+const formatRupees = (paise: number) => `₹${(paise / 100).toLocaleString('en-IN')}`;
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
-      {/* Navigation */}
-      <nav className="border-b border-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">TC</span>
-            </div>
-            <span className="font-semibold text-xl text-gray-900">Tech Conference 2025</span>
-          </div>
-          <Link href="/admin">
-            <Button variant="ghost" size="sm">Admin</Button>
+    <div className="min-h-screen overflow-hidden bg-[#f7f7f3] text-[#171916] [font-family:var(--font-geist-sans),sans-serif]">
+      <style>{`
+        @keyframes page-arrive {
+          from { opacity: 0; transform: translateY(14px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .page-arrive { animation: page-arrive 650ms cubic-bezier(.2,.7,.2,1) both; }
+        .page-arrive-late { animation-delay: 120ms; }
+        .page-arrive-last { animation-delay: 220ms; }
+        @media (prefers-reduced-motion: reduce) {
+          .page-arrive, .page-arrive-late, .page-arrive-last { animation: none; }
+          html { scroll-behavior: auto; }
+        }
+      `}</style>
+
+      <header className="border-b border-[#d4d7cf] bg-[#f7f7f3]">
+        <nav aria-label="Main navigation" className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8 lg:px-12">
+          <Link href="#top" className="group flex min-w-0 items-center gap-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#a84e2b]">
+            <span aria-hidden="true" className="grid h-10 w-10 shrink-0 place-items-center border border-[#171916] text-[11px] font-black leading-none tracking-[0.08em]">
+              JPS
+            </span>
+            <span className="min-w-0">
+              <span className="block truncate text-[11px] font-bold uppercase tracking-[0.11em] sm:text-xs">JUST POLYMER SOLUTIONS</span>
+              <span className="mt-0.5 block text-[10px] text-[#646960] sm:text-[11px]">Chem Petchem Education Drive</span>
+            </span>
           </Link>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <section className="container mx-auto px-4 py-20 text-center">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-            Tech Conference 2025
-          </h1>
-          <p className="text-2xl text-blue-600 font-medium mb-4">
-            Innovation, Learning, and Networking
-          </p>
-          <div className="flex items-center justify-center gap-6 text-gray-600 mb-8">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5" />
-              <span>March 15-17, 2025</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <MapPin className="w-5 h-5" />
-              <span>Convention Center, Bangalore</span>
-            </div>
-          </div>
-          <p className="text-lg text-gray-600 mb-10 max-w-2xl mx-auto">
-            Join us for three days of inspiring talks, workshops, and networking opportunities with industry leaders and innovators from around the world.
-          </p>
-          <Link href="/register">
-            <Button size="lg" className="text-lg px-8 py-6">
-              Register Now
-            </Button>
+          <Link href="/admin/login" className="inline-flex min-h-10 items-center gap-1.5 border-b border-transparent px-2 text-xs font-semibold text-[#4b5149] transition-colors hover:border-[#a84e2b] hover:text-[#171916] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a84e2b]">
+            Admin <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
           </Link>
-        </div>
-      </section>
+        </nav>
+      </header>
 
-      {/* Benefits Section */}
-      <section className="container mx-auto px-4 py-16 bg-white">
-        <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-          Why Attend?
-        </h2>
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Users className="w-8 h-8 text-blue-600" />
+      <main id="top">
+        <section aria-labelledby="branding-heading" className="border-b border-[#d4d7cf] bg-[#e8eef5]">
+          <h2 id="branding-heading" className="sr-only">JUST POLYMER SOLUTIONS Chem Petchem Education Drive branding</h2>
+          <Image
+            src="/img19.jpg"
+            alt="JUST POLYMER SOLUTIONS Chem Petchem Education Drive, connecting industry and academia"
+            width={1600}
+            height={900}
+            priority
+            className="mx-auto h-auto w-full max-h-[min(56vh,560px)] object-contain object-center"
+          />
+        </section>
+
+        <section aria-labelledby="conference-title" className="relative isolate border-b border-[#d4d7cf] bg-[#171916] text-[#f7f7f3]">
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-[0.08]" style={{ backgroundImage: 'linear-gradient(to right, #f7f7f3 1px, transparent 1px), linear-gradient(to bottom, #f7f7f3 1px, transparent 1px)', backgroundSize: '72px 72px' }} />
+          <div className="relative mx-auto grid max-w-7xl gap-12 px-5 pb-16 pt-12 sm:px-8 sm:pb-20 sm:pt-16 lg:grid-cols-[1.3fr_0.7fr] lg:items-end lg:px-12 lg:pb-24 lg:pt-20">
+            <div className="page-arrive">
+              <p className="mb-7 flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#d4db62] sm:text-xs">
+                <span className="h-px w-8 bg-[#d4db62]" />
+                Virtual Industry Programme
+              </p>
+              <h1 id="conference-title" className="max-w-4xl text-[clamp(2.65rem,7.1vw,6.5rem)] font-semibold leading-[0.94] tracking-[-0.055em]">
+                {CONFERENCE.title.split(':')[0]}:
+                <span className="mt-2 block text-[#d4db62]">The Materials</span>
+                <span className="block">&amp; Mobility</span>
+                <span className="block">Revolution<span className="text-[#c46a44]">.</span></span>
+              </h1>
+              <p className="mt-7 max-w-xl border-l-2 border-[#c46a44] pl-4 text-sm leading-6 text-[#d4d7cf] sm:text-base sm:leading-7">
+                {CONFERENCE.tagline}
+              </p>
+              <p className="mt-8 max-w-lg text-sm leading-6 text-[#aeb3a9]">
+                {CONFERENCE.description}
+              </p>
+              <div className="mt-9 flex flex-wrap items-center gap-3">
+                <Link href="#registration" className="inline-flex min-h-12 items-center gap-3 bg-[#d4db62] px-5 text-sm font-bold text-[#171916] transition-colors hover:bg-[#e4eb7b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4db62]">
+                  Explore registration <ArrowRight aria-hidden="true" className="h-4 w-4" />
+                </Link>
+                <a href="#focus-areas" className="inline-flex min-h-12 items-center gap-2 px-4 text-sm font-medium text-[#f7f7f3] transition-colors hover:text-[#d4db62] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d4db62]">
+                  Explore the themes <ArrowDown aria-hidden="true" className="h-4 w-4" />
+                </a>
+              </div>
             </div>
-            <h3 className="text-xl font-semibold mb-2 text-gray-900">Network with Experts</h3>
-            <p className="text-gray-600">Connect with industry leaders, researchers, and fellow professionals from diverse backgrounds.</p>
+
+            <aside aria-label="Event date and format" className="page-arrive page-arrive-late border-t border-[#555a51] pt-6 lg:ml-auto lg:w-full lg:max-w-sm lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
+              <div className="flex items-end gap-3">
+                <p className="text-[5.4rem] font-semibold leading-[0.78] tracking-[-0.08em] text-[#d4db62] sm:text-[7rem]">31</p>
+                <div className="pb-1">
+                  <p className="text-sm font-bold uppercase tracking-[0.16em]">October</p>
+                  <p className="mt-1 text-xs text-[#aeb3a9]">Saturday · 2026</p>
+                </div>
+              </div>
+              <div className="mt-5 flex items-center gap-3 border-y border-[#555a51] py-3">
+                <span className="text-3xl font-light text-[#c46a44]">/</span>
+                <p className="text-sm font-bold uppercase tracking-[0.16em]">01 NOV 2026</p>
+                <span className="ml-auto text-[10px] uppercase tracking-[0.16em] text-[#aeb3a9]">Sunday</span>
+              </div>
+              <div className="mt-6 flex items-center gap-3 text-sm">
+                <span className="grid h-9 w-9 place-items-center border border-[#555a51] text-[#d4db62]"><MonitorPlay aria-hidden="true" className="h-4 w-4" /></span>
+                <span><span className="block font-semibold">Virtual event</span><span className="mt-0.5 block text-xs text-[#aeb3a9]">Join online · October 31 – November 1</span></span>
+              </div>
+            </aside>
           </div>
-          <div className="text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <GraduationCap className="w-8 h-8 text-green-600" />
+          <div aria-hidden="true" className="absolute bottom-0 right-0 hidden h-2 w-[36%] bg-[#c46a44] lg:block" />
+        </section>
+
+        <section aria-labelledby="overview-heading" className="border-b border-[#d4d7cf] bg-white">
+          <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8 lg:px-12">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#a84e2b]">Chem Petchem Education Drive</p>
+            <h2 id="overview-heading" className="mt-4 max-w-3xl text-3xl font-semibold leading-tight tracking-[-0.04em] sm:text-4xl">Industry and students, in the same conversation.</h2>
+            <p className="mt-4 max-w-3xl text-sm leading-6 text-[#555b52]">{CONFERENCE.description}</p>
+            <p className="mt-4 text-xs font-semibold uppercase tracking-[0.12em] text-[#30352e]">For Students and Industry Professionals · Virtual · October 31 – November 1, 2026</p>
+          </div>
+        </section>
+
+        <section aria-labelledby="focus-heading" id="focus-areas" className="scroll-mt-8 border-b border-[#d4d7cf]">
+          <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-20 lg:px-12">
+            <div className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
+              <div className="page-arrive">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#a84e2b]">01 / The landscape</p>
+                <h2 id="focus-heading" className="mt-4 max-w-sm text-3xl font-semibold leading-tight tracking-[-0.04em] sm:text-4xl">One industry.<br />Many material futures.</h2>
+                <p className="mt-5 max-w-md text-sm leading-6 text-[#555b52]">From vehicle design to energy storage, discover the systems and disciplines reshaping mobility.</p>
+              </div>
+              <ol className="grid gap-px border border-[#d4d7cf] bg-[#d4d7cf] sm:grid-cols-2">
+                {CONFERENCE.focusAreas.map((area, index) => {
+                  const number = String(index + 1).padStart(2, '0');
+                  const { title, description } = area;
+                  return (
+                  <li key={title} className="group flex min-h-[132px] gap-4 bg-[#f7f7f3] p-5 transition-colors hover:bg-white sm:p-6">
+                    <span className="pt-1 font-mono text-[10px] text-[#a84e2b]">{number}</span>
+                    <span>
+                      <span className="block text-sm font-bold">{title}</span>
+                      <span className="mt-2 block text-xs leading-5 text-[#646960]">{description}</span>
+                    </span>
+                  </li>
+                );
+                })}
+              </ol>
             </div>
-            <h3 className="text-xl font-semibold mb-2 text-gray-900">Learn from the Best</h3>
-            <p className="text-gray-600">Attend workshops and sessions led by renowned experts in technology and innovation.</p>
           </div>
-          <div className="text-center">
-            <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Briefcase className="w-8 h-8 text-purple-600" />
+        </section>
+
+        <section aria-labelledby="careers-heading" className="border-b border-[#d4d7cf] bg-[#e9ebe3]">
+          <div className="mx-auto grid max-w-7xl gap-8 px-5 py-14 sm:px-8 sm:py-16 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16 lg:px-12">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#a84e2b]">02 / People &amp; practice</p>
+              <h2 id="careers-heading" className="mt-4 text-3xl font-semibold leading-tight tracking-[-0.04em] sm:text-4xl">Where your work<br />can take you.</h2>
+              <p className="mt-5 max-w-md text-sm leading-6 text-[#555b52]">A cross-section of career paths contributing to the automotive materials and mobility value chain.</p>
             </div>
-            <h3 className="text-xl font-semibold mb-2 text-gray-900">Career Opportunities</h3>
-            <p className="text-gray-600">Discover new career paths, job opportunities, and potential collaborations.</p>
+            <ul className="flex flex-wrap content-start gap-x-2 gap-y-2.5" aria-label="Career opportunities">
+              {CONFERENCE.careerOpportunities.map((career) => (
+                <li key={career} className="border border-[#bdc2b8] bg-[#f7f7f3] px-3 py-2 text-xs font-medium text-[#30352e] sm:text-sm">{career}</li>
+              ))}
+            </ul>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Registration Categories */}
-      <section className="container mx-auto px-4 py-20">
-        <h2 className="text-3xl font-bold text-center text-gray-900 mb-4">
-          Choose Your Registration Type
-        </h2>
-        <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
-          Select the category that best describes you to begin your registration process.
-        </p>
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          <Link href="/register/student">
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full border-2 hover:border-blue-500">
-              <CardHeader>
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                  <GraduationCap className="w-6 h-6 text-blue-600" />
-                </div>
-                <CardTitle>Student</CardTitle>
-                <CardDescription>For students currently enrolled in academic programs</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Special student pricing</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Access to all sessions</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Networking opportunities</span>
-                  </li>
-                </ul>
-                <div className="mt-6">
-                  <Button className="w-full">Register as Student</Button>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link href="/register/industry">
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full border-2 hover:border-blue-500">
-              <CardHeader>
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-                  <Briefcase className="w-6 h-6 text-green-600" />
-                </div>
-                <CardTitle>Industry Professional</CardTitle>
-                <CardDescription>For working professionals and industry experts</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Full conference access</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Exclusive workshops</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Premium networking</span>
-                  </li>
-                </ul>
-                <div className="mt-6">
-                  <Button className="w-full">Register as Professional</Button>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link href="/register/other">
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full border-2 hover:border-blue-500">
-              <CardHeader>
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
-                  <Users className="w-6 h-6 text-purple-600" />
-                </div>
-                <CardTitle>Other Participant</CardTitle>
-                <CardDescription>For researchers, academics, and other attendees</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Flexible registration</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Conference materials</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Digital proceedings</span>
-                  </li>
-                </ul>
-                <div className="mt-6">
-                  <Button className="w-full">Register as Other</Button>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-        </div>
-      </section>
-
-      {/* Important Information */}
-      <section className="container mx-auto px-4 py-16 bg-gray-50">
-        <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">
-          Important Information
-        </h2>
-        <div className="max-w-3xl mx-auto space-y-4">
-          <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <h3 className="font-semibold text-lg mb-2">Document Requirements</h3>
-            <p className="text-gray-600">Students must upload a valid student ID card. Industry professionals must provide proof of employment or professional identity. Other participants may need to upload supporting documents based on their category.</p>
-          </div>
-          <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <h3 className="font-semibold text-lg mb-2">Payment Process</h3>
-            <p className="text-gray-600">After submitting your registration, you will receive a payment link. Complete the payment to finalize your registration. Your registration will be verified after document review and payment confirmation.</p>
-          </div>
-          <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <h3 className="font-semibold text-lg mb-2">Verification Timeline</h3>
-            <p className="text-gray-600">Document verification typically takes 2-3 business days. You will receive an email confirmation once your registration is approved.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      {/* <footer className="bg-gray-900 text-white py-12">
-        <div className="container mx-auto px-4 text-center">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">TC</span>
+        <section aria-labelledby="registration-heading" id="registration" className="scroll-mt-6 border-b border-[#d4d7cf]">
+          <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-20 lg:px-12">
+            <div className="mb-10 flex flex-col gap-5 sm:mb-12 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#a84e2b]">03 / Take part</p>
+                <h2 id="registration-heading" className="mt-4 text-3xl font-semibold leading-tight tracking-[-0.04em] sm:text-4xl">Choose your registration.</h2>
+              </div>
+              <p className="max-w-sm text-sm leading-6 text-[#555b52]">For students and industry professionals. GST is shown as configured by the organizer.</p>
             </div>
-            <span className="font-semibold text-xl">Tech Conference 2025</span>
+
+            <div className="grid gap-5 lg:grid-cols-2">
+              <Card className="rounded-none border border-[#c9cdc4] bg-white shadow-none transition-colors hover:border-[#a84e2b]">
+                <CardHeader className="border-b border-[#e1e3dd] px-6 pb-5 pt-6 sm:px-8 sm:pt-8">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <span className="mb-4 grid h-10 w-10 place-items-center bg-[#e9ebe3] text-[#30352e]"><GraduationCap aria-hidden="true" className="h-5 w-5" /></span>
+                      <CardTitle className="text-xl font-semibold tracking-[-0.03em]">Student</CardTitle>
+                      <CardDescription className="mt-1 text-sm text-[#646960]">For students currently enrolled in an academic programme.</CardDescription>
+                    </div>
+                    <span className="shrink-0 bg-[#d4db62] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[#171916]">Student rate</span>
+                  </div>
+                </CardHeader>
+                <CardContent className="px-6 py-5 sm:px-8">
+                  <dl className="space-y-2.5 text-sm">
+                    <div className="flex justify-between gap-4 text-[#555b52]"><dt>Base price</dt><dd className="font-medium text-[#171916]">{formatRupees(REGISTRATION_PRICING.student.baseFeePaise)}</dd></div>
+                    <div className="flex justify-between gap-4 text-[#555b52]"><dt>GST ({REGISTRATION_PRICING.student.gstRate}%)</dt><dd className="font-medium text-[#171916]">{formatRupees(REGISTRATION_PRICING.student.gstAmountPaise)}</dd></div>
+                    <div className="mt-4 flex items-end justify-between gap-4 border-t border-[#d4d7cf] pt-4"><dt className="text-xs font-bold uppercase tracking-[0.1em]">Total</dt><dd className="text-3xl font-semibold tracking-[-0.05em]">{formatRupees(REGISTRATION_PRICING.student.totalAmountPaise)}</dd></div>
+                  </dl>
+                  <div className="mt-6 border-l-2 border-[#d4db62] pl-3 text-xs leading-5 text-[#555b52]"><span className="font-semibold text-[#171916]">Document:</span> Upload a valid student ID for review.</div>
+                  <Link href="/register/student" className="mt-6 inline-flex min-h-12 w-full items-center justify-between bg-[#171916] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#343a32] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a84e2b]">
+                    Register as a student <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+                  </Link>
+                </CardContent>
+              </Card>
+
+              <Card className="rounded-none border border-[#c9cdc4] bg-white shadow-none transition-colors hover:border-[#a84e2b]">
+                <CardHeader className="border-b border-[#e1e3dd] px-6 pb-5 pt-6 sm:px-8 sm:pt-8">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <span className="mb-4 grid h-10 w-10 place-items-center bg-[#f2e7df] text-[#a84e2b]"><UsersRound aria-hidden="true" className="h-5 w-5" /></span>
+                      <CardTitle className="text-xl font-semibold tracking-[-0.03em]">Industry Professional</CardTitle>
+                      <CardDescription className="mt-1 text-sm text-[#646960]">For working professionals across the automotive value chain.</CardDescription>
+                    </div>
+                    <span className="shrink-0 border border-[#bdc2b8] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[#4b5149]">Industry</span>
+                  </div>
+                </CardHeader>
+                <CardContent className="px-6 py-5 sm:px-8">
+                  <dl className="space-y-2.5 text-sm">
+                    <div className="flex justify-between gap-4 text-[#555b52]"><dt>Base price</dt><dd className="font-medium text-[#171916]">{formatRupees(REGISTRATION_PRICING.industry_professional.baseFeePaise)}</dd></div>
+                    <div className="flex justify-between gap-4 text-[#555b52]"><dt>GST ({REGISTRATION_PRICING.industry_professional.gstRate}%)</dt><dd className="font-medium text-[#171916]">{formatRupees(REGISTRATION_PRICING.industry_professional.gstAmountPaise)}</dd></div>
+                    <div className="mt-4 flex items-end justify-between gap-4 border-t border-[#d4d7cf] pt-4"><dt className="text-xs font-bold uppercase tracking-[0.1em]">Total</dt><dd className="text-3xl font-semibold tracking-[-0.05em]">{formatRupees(REGISTRATION_PRICING.industry_professional.totalAmountPaise)}</dd></div>
+                  </dl>
+                  <div className="mt-6 border-l-2 border-[#c46a44] pl-3 text-xs leading-5 text-[#555b52]"><span className="font-semibold text-[#171916]">Document:</span> Upload proof of employment or professional identity for review.</div>
+                  <Link href="/register/industry" className="mt-6 inline-flex min-h-12 w-full items-center justify-between bg-[#171916] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#343a32] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a84e2b]">
+                    Register as an industry professional <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+                  </Link>
+                </CardContent>
+              </Card>
+            </div>
+
+            <p className="mt-4 text-[11px] leading-5 text-[#646960]">GST rate and amounts are displayed as configured by the organizer; this is not tax advice.</p>
           </div>
-          <p className="text-gray-400 mb-4">
-            Innovation, Learning, and Networking
-          </p>
-          <p className="text-gray-500 text-sm">
-            © 2025 Tech Conference. All rights reserved.
-          </p>
+        </section>
+
+        <section aria-labelledby="process-heading" className="bg-[#171916] text-[#f7f7f3]">
+          <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 sm:px-8 sm:py-16 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16 lg:px-12">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#d4db62]">04 / What happens next</p>
+              <h2 id="process-heading" className="mt-4 max-w-sm text-3xl font-semibold leading-tight tracking-[-0.04em] sm:text-4xl">A clear path<br />to confirmation.</h2>
+            </div>
+            <ol className="divide-y divide-[#555a51]">
+              <li className="flex gap-4 py-4 first:pt-0">
+                <span className="grid h-9 w-9 shrink-0 place-items-center border border-[#555a51] text-[#d4db62]"><ClipboardCheck aria-hidden="true" className="h-4 w-4" /></span>
+                <span><span className="block text-sm font-semibold">Complete registration</span><span className="mt-1 block text-xs leading-5 text-[#aeb3a9]">Choose your category and submit the registration form with the required ID document.</span></span>
+                <span className="ml-auto pt-1 font-mono text-[10px] text-[#aeb3a9]">01</span>
+              </li>
+              <li className="flex gap-4 py-4">
+                <span className="grid h-9 w-9 shrink-0 place-items-center border border-[#555a51] text-[#d4db62]"><CreditCard aria-hidden="true" className="h-4 w-4" /></span>
+                <span><span className="block text-sm font-semibold">Pay the published fee</span><span className="mt-1 block text-xs leading-5 text-[#aeb3a9]">Your registration is saved first. Proceed to the category’s predefined Razorpay Payment Link for the displayed GST-inclusive total. Document review is separate from payment status.</span></span>
+                <span className="ml-auto pt-1 font-mono text-[10px] text-[#aeb3a9]">02</span>
+              </li>
+              <li className="flex gap-4 py-4 last:pb-0">
+                <span className="grid h-9 w-9 shrink-0 place-items-center border border-[#555a51] text-[#d4db62]"><Check aria-hidden="true" className="h-4 w-4" /></span>
+                <span><span className="block text-sm font-semibold">Wait for confirmation</span><span className="mt-1 block text-xs leading-5 text-[#aeb3a9]">Registration status is confirmed only after the server receives the payment webhook.</span></span>
+                <span className="ml-auto pt-1 font-mono text-[10px] text-[#aeb3a9]">03</span>
+              </li>
+            </ol>
+          </div>
+        </section>
+      </main>
+
+      <footer className="border-t border-[#d4d7cf] bg-[#f7f7f3]">
+        <div className="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-7 sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-12">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.12em]">JUST POLYMER SOLUTIONS</p>
+            <p className="mt-1 text-[11px] text-[#646960]">Chem Petchem Education Drive · Virtual Industry Programme</p>
+          </div>
+          <p className="flex items-center gap-2 text-xs text-[#555b52]"><CalendarDays aria-hidden="true" className="h-4 w-4 text-[#a84e2b]" /> October 31 – November 1, 2026</p>
+          <Link href="#top" className="inline-flex min-h-10 items-center gap-2 text-xs font-semibold text-[#30352e] hover:text-[#a84e2b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a84e2b]">Back to top <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" /></Link>
         </div>
-      </footer> */}
+      </footer>
     </div>
   );
 }

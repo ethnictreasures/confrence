@@ -1,5 +1,4 @@
 import { pgTable, uuid, varchar, text, boolean, decimal, integer, timestamp, jsonb, index } from 'drizzle-orm/pg-core';
-import { sql } from 'drizzle-orm';
 
 export const registrations = pgTable('registrations', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -38,11 +37,18 @@ export const registrations = pgTable('registrations', {
   
   // Status fields
   verificationStatus: varchar('verification_status', { length: 50 }).notNull().default('pending').$type<'pending' | 'approved' | 'rejected' | 'additional_info_required'>(),
-  paymentStatus: varchar('payment_status', { length: 50 }).notNull().default('pending').$type<'pending' | 'paid' | 'failed' | 'expired' | 'refunded'>(),
+  paymentStatus: varchar('payment_status', { length: 50 }).notNull().default('pending').$type<'pending' | 'paid' | 'partially_paid' | 'failed' | 'expired' | 'cancelled' | 'partially_refunded' | 'refunded' | 'requires_reconciliation'>(),
   paymentAmount: decimal('payment_amount', { precision: 10, scale: 2 }),
+  baseFeePaise: integer('base_fee_paise'),
+  gstRate: decimal('gst_rate', { precision: 5, scale: 2 }),
+  gstAmountPaise: integer('gst_amount_paise'),
+  totalAmountPaise: integer('total_amount_paise'),
   currency: varchar('currency', { length: 3 }).default('INR'),
   paymentLinkId: varchar('payment_link_id', { length: 255 }),
   razorpayPaymentId: varchar('razorpay_payment_id', { length: 255 }),
+  paymentReconciliationStatus: varchar('payment_reconciliation_status', { length: 30 }).notNull().default('pending').$type<'pending' | 'matched' | 'requires_reconciliation'>(),
+  amountPaidPaise: integer('amount_paid_paise').notNull().default(0),
+  paymentCompletedAt: timestamp('payment_completed_at'),
   
   // Additional fields
   additionalInfo: text('additional_info'),
@@ -68,8 +74,10 @@ export const payments = pgTable('payments', {
   paymentLinkId: varchar('payment_link_id', { length: 255 }),
   razorpayPaymentId: varchar('razorpay_payment_id', { length: 255 }).unique(),
   amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
+  amountPaise: integer('amount_paise'),
   currency: varchar('currency', { length: 3 }).default('INR'),
-  paymentStatus: varchar('payment_status', { length: 50 }).notNull().$type<'pending' | 'paid' | 'failed' | 'expired' | 'refunded'>(),
+  paymentStatus: varchar('payment_status', { length: 50 }).notNull().$type<'pending' | 'paid' | 'partially_paid' | 'failed' | 'expired' | 'cancelled' | 'partially_refunded' | 'refunded' | 'requires_reconciliation'>(),
+  refundedAmountPaise: integer('refunded_amount_paise').notNull().default(0),
   webhookEventId: varchar('webhook_event_id', { length: 255 }).unique(),
   rawWebhookData: jsonb('raw_webhook_data'),
   
@@ -82,6 +90,21 @@ export const payments = pgTable('payments', {
   registrationIdIdx: index('idx_payments_registration_id').on(table.registrationId),
   razorpayPaymentIdIdx: index('idx_payments_razorpay_payment_id').on(table.razorpayPaymentId),
   webhookEventIdIdx: index('idx_payments_webhook_event_id').on(table.webhookEventId),
+  paymentStatusIdx: index('idx_payments_payment_status').on(table.paymentStatus),
+}));
+
+export const paymentRefunds = pgTable('payment_refunds', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  paymentId: uuid('payment_id').notNull().references(() => payments.id, { onDelete: 'cascade' }),
+  razorpayRefundId: varchar('razorpay_refund_id', { length: 255 }).notNull().unique(),
+  amountPaise: integer('amount_paise').notNull(),
+  status: varchar('status', { length: 20 }).notNull().$type<'pending' | 'processed' | 'failed'>(),
+  webhookEventId: varchar('webhook_event_id', { length: 255 }).notNull().unique(),
+  rawEvent: jsonb('raw_event').notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+}, (table) => ({
+  paymentIdIdx: index('idx_payment_refunds_payment_id').on(table.paymentId),
 }));
 
 export type AdminRole = 'admin' | 'super_admin';
@@ -98,6 +121,29 @@ export const admins = pgTable('admins', {
   updatedAt: timestamp('updated_at').defaultNow(),
 }, (table) => ({
   emailIdx: index('idx_admins_email').on(table.email),
+}));
+
+export const paymentWebhookEvents = pgTable('payment_webhook_events', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  webhookEventId: varchar('webhook_event_id', { length: 255 }).notNull().unique(),
+  eventType: varchar('event_type', { length: 100 }).notNull(),
+  paymentLinkId: varchar('payment_link_id', { length: 255 }),
+  razorpayPaymentId: varchar('razorpay_payment_id', { length: 255 }),
+  amountPaise: integer('amount_paise'),
+  currency: varchar('currency', { length: 3 }),
+  payerEmail: varchar('payer_email', { length: 255 }),
+  payerPhone: varchar('payer_phone', { length: 30 }),
+  registrationId: uuid('registration_id').references(() => registrations.id, { onDelete: 'set null' }),
+  reconciliationStatus: varchar('reconciliation_status', { length: 30 }).notNull().default('unresolved').$type<'unresolved' | 'matched' | 'manual' | 'ignored'>(),
+  reconciliationReason: text('reconciliation_reason'),
+  reconciledBy: uuid('reconciled_by').references(() => admins.id, { onDelete: 'set null' }),
+  reconciledAt: timestamp('reconciled_at'),
+  rawEvent: jsonb('raw_event').notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+}, (table) => ({
+  paymentIdIdx: index('idx_payment_webhook_events_payment_id').on(table.razorpayPaymentId),
+  reconciliationStatusIdx: index('idx_payment_webhook_events_reconciliation_status').on(table.reconciliationStatus),
+  registrationIdIdx: index('idx_payment_webhook_events_registration_id').on(table.registrationId),
 }));
 
 export const auditLogs = pgTable('audit_logs', {

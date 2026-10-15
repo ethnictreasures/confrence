@@ -1,117 +1,74 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { GraduationCap, Briefcase, Users, ArrowLeft } from 'lucide-react';
+import { ArrowLeft, BriefcaseBusiness, GraduationCap } from 'lucide-react';
+import { CONFERENCE, REGISTRATION_PRICING } from '@/config/conference';
+
+const formatRupees = (paise: number) => `₹${(paise / 100).toLocaleString('en-IN')}`;
 
 export default function RegisterPage() {
+  const options = [
+    {
+      type: 'student' as const,
+      title: 'Student',
+      description: 'For students currently enrolled in academic programs.',
+      document: 'Student ID card required',
+      href: '/register/student',
+      icon: GraduationCap,
+    },
+    {
+      type: 'industry_professional' as const,
+      title: 'Industry Professional',
+      description: 'For professionals working across the automotive value chain.',
+      document: 'Professional identity or employment document required',
+      href: '/register/industry',
+      icon: BriefcaseBusiness,
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
-      {/* Navigation */}
-      <nav className="border-b border-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">TC</span>
-            </div>
-            <span className="font-semibold text-xl text-gray-900">Tech Conference 2025</span>
-          </Link>
-          <Link href="/">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
-            </Button>
+    <main className="min-h-screen bg-[#f4f5f2] text-[#14221e]">
+      <nav className="border-b border-[#14221e]/15 bg-white">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+          <Link href="/" className="font-semibold tracking-wide">{CONFERENCE.organizer}</Link>
+          <Link href="/" aria-label="Back to conference home">
+            <Button variant="outline" size="sm"><ArrowLeft className="mr-2 h-4 w-4" />Home</Button>
           </Link>
         </div>
       </nav>
 
-      {/* Registration Type Selection */}
-      <section className="container mx-auto px-4 py-20">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold text-center text-gray-900 mb-4">
-            Select Your Registration Type
-          </h1>
-          <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
-            Choose the category that best describes you to begin your registration process.
-          </p>
+      <section className="mx-auto max-w-6xl px-4 py-12 md:py-16">
+        <p className="text-sm font-semibold uppercase tracking-[0.14em] text-[#47735d]">{CONFERENCE.initiative}</p>
+        <h1 className="mt-3 max-w-3xl text-3xl font-semibold leading-tight md:text-5xl">Choose your registration category</h1>
+        <p className="mt-4 max-w-3xl text-lg leading-relaxed text-[#42534d]">
+          {CONFERENCE.title} <span className="font-medium">· {CONFERENCE.dates} · Virtual</span>
+        </p>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <Link href="/register/student">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full border-2 hover:border-blue-500">
+        <div className="mt-9 grid gap-5 md:grid-cols-2">
+          {options.map(({ type, title, description, document, href, icon: Icon }) => {
+            const pricing = REGISTRATION_PRICING[type];
+            return (
+              <Card key={type} className="rounded-md border-[#14221e]/20 bg-white shadow-none">
                 <CardHeader>
-                  <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                    <GraduationCap className="w-8 h-8 text-blue-600" />
-                  </div>
-                  <CardTitle>Student</CardTitle>
-                  <CardDescription>For students currently enrolled in academic programs</CardDescription>
+                  <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-md bg-[#e7eee8] text-[#27543f]"><Icon className="h-5 w-5" /></div>
+                  <CardTitle className="text-xl">{title}</CardTitle>
+                  <CardDescription>{description}</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-3 mb-6">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Registration Fee</span>
-                      <span className="font-semibold text-gray-900">₹1,500</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Document Required</span>
-                      <span className="font-semibold text-gray-900">Student ID</span>
-                    </div>
-                  </div>
-                  <Button className="w-full">Select Student</Button>
+                <CardContent className="space-y-3">
+                  <div className="flex justify-between gap-4 border-t border-[#14221e]/10 pt-4 text-sm"><span>Base fee</span><span className="font-medium">{formatRupees(pricing.baseFeePaise)}</span></div>
+                  <div className="flex justify-between gap-4 text-sm"><span>GST ({pricing.gstRate}%)</span><span className="font-medium">{formatRupees(pricing.gstAmountPaise)}</span></div>
+                  <div className="flex justify-between gap-4 border-t border-[#14221e]/15 pt-3"><span className="font-semibold">Total payable</span><span className="text-lg font-semibold">{formatRupees(pricing.totalAmountPaise)}</span></div>
+                  <p className="pt-1 text-sm text-[#53635c]">{document}. Uploads are reviewed separately from payment.</p>
+                  <Link href={href} className="block pt-2"><Button className="w-full">Register as {title}</Button></Link>
                 </CardContent>
               </Card>
-            </Link>
-
-            <Link href="/register/industry">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full border-2 hover:border-blue-500">
-                <CardHeader>
-                  <div className="w-16 h-16 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-                    <Briefcase className="w-8 h-8 text-green-600" />
-                  </div>
-                  <CardTitle>Industry Professional</CardTitle>
-                  <CardDescription>For working professionals and industry experts</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3 mb-6">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Registration Fee</span>
-                      <span className="font-semibold text-gray-900">₹3,000</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Document Required</span>
-                      <span className="font-semibold text-gray-900">Professional ID</span>
-                    </div>
-                  </div>
-                  <Button className="w-full">Select Professional</Button>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/register/other">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full border-2 hover:border-blue-500">
-                <CardHeader>
-                  <div className="w-16 h-16 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
-                    <Users className="w-8 h-8 text-purple-600" />
-                  </div>
-                  <CardTitle>Other Participant</CardTitle>
-                  <CardDescription>For researchers, academics, and other attendees</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3 mb-6">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Registration Fee</span>
-                      <span className="font-semibold text-gray-900">₹2,000</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Document Required</span>
-                      <span className="font-semibold text-gray-900">Optional</span>
-                    </div>
-                  </div>
-                  <Button className="w-full">Select Other</Button>
-                </CardContent>
-              </Card>
-            </Link>
-          </div>
+            );
+          })}
         </div>
+        <p className="mt-7 max-w-4xl text-xs leading-relaxed text-[#586761]">
+          GST rate and totals are displayed as configured by the organizer. Please confirm applicable tax treatment with the organizer’s accountant.
+        </p>
       </section>
-    </div>
+    </main>
   );
 }

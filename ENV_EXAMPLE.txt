@@ -11,10 +11,27 @@ R2_BUCKET_NAME=your_bucket_name
 RAZORPAY_KEY_ID=your_razorpay_key_id
 RAZORPAY_KEY_SECRET=your_razorpay_key_secret
 RAZORPAY_WEBHOOK_SECRET=your_razorpay_webhook_secret
+STUDENT_RAZORPAY_PAYMENT_LINK_URL=https://rzp.io/rzp/replace_with_student_link
+STUDENT_RAZORPAY_PAYMENT_LINK_ID=plink_replace_with_student_id
+PROFESSIONAL_RAZORPAY_PAYMENT_LINK_URL=https://rzp.io/rzp/replace_with_professional_link
+PROFESSIONAL_RAZORPAY_PAYMENT_LINK_ID=plink_replace_with_professional_id
+
+# Configure the Razorpay webhook URL as https://your-domain/api/webhooks/razorpay
+# Subscribe to payment_link.paid, payment_link.partially_paid, payment_link.expired,
+# payment_link.cancelled, payment.captured, payment.failed, refund.created,
+# refund.processed, refund.failed and refund.speed_changed.
 
 # NextAuth Configuration
 AUTH_SECRET=your_auth_secret_generate_with_openssl_rand_base64_32
 NEXTAUTH_URL=http://localhost:3000
+ADMIN_SEED_EMAIL=admin@example.com
+ADMIN_SEED_NAME=Conference Administrator
+ADMIN_SEED_PASSWORD=replace_with_a_unique_password_at_least_12_chars
 
 # Application Configuration
 APP_BASE_URL=http://localhost:3000
+
+# Pricing shows organizer-configured GST values. Confirm applicable GST treatment
+# with the organizer's accountant before publishing or issuing tax documents.
+# Before first production use, apply the additive SQL in
+# drizzle/0001_pricing_payment_reconciliation.sql to the existing Neon database.

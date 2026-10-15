@@ -1,16 +1,25 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { studentRegistrationSchema, type StudentRegistrationInput } from '@/lib/validation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Upload, Loader2 } from 'lucide-react';
-import Link from 'next/link';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  studentRegistrationSchema,
+  type StudentRegistrationInput,
+} from "@/lib/validation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import Link from "next/link";
 
 export default function StudentRegistrationForm() {
   const router = useRouter();
@@ -22,7 +31,6 @@ export default function StudentRegistrationForm() {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
   } = useForm<StudentRegistrationInput>({
     resolver: zodResolver(studentRegistrationSchema),
   });
@@ -35,30 +43,62 @@ export default function StudentRegistrationForm() {
       // Step 1: Get presigned upload URL
       const file = data.studentIdDocument;
 
-      const presignedResponse = await fetch('/api/upload/presign', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      if (!(file instanceof File)) {
+        throw new Error("Please select a student ID document.");
+      }
+
+      const presignedResponse = await fetch("/api/upload/presign", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contentType: file.type,
+          size: file.size,
         }),
       });
 
       if (!presignedResponse.ok) {
-        throw new Error('Failed to get upload URL');
+        throw new Error("Failed to get upload URL");
       }
 
       const { uploadUrl, objectKey } = await presignedResponse.json();
 
       // Step 2: Upload file to R2
-      setUploadProgress(10);
-      const uploadResponse = await fetch(uploadUrl, {
-        method: 'PUT',
-        body: file,
-      });
 
-      if (!uploadResponse.ok) {
-        throw new Error('Failed to upload document');
-      }
+      
+try {
+  console.log('Starting R2 upload', {
+    fileType: file.type,
+    fileSize: file.size,
+  });
+
+  const uploadResponse = await fetch(uploadUrl, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': file.type,
+    },
+    body: file,
+  });
+
+  const responseText = await uploadResponse.text().catch(() => '');
+
+  console.log('R2 upload result', {
+    status: uploadResponse.status,
+    statusText: uploadResponse.statusText,
+    response: responseText,
+  });
+
+  if (!uploadResponse.ok) {
+    throw new Error(
+      `R2 upload failed: HTTP ${uploadResponse.status}`
+    );
+  }
+
+  console.log('R2 upload successful');
+} catch (error) {
+  console.error('R2 upload/network error:', error);
+  throw error;
+}
+
 
       setUploadProgress(50);
 
@@ -71,9 +111,9 @@ export default function StudentRegistrationForm() {
         documentSize: file.size,
       };
 
-      const registrationResponse = await fetch('/api/register/student', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const registrationResponse = await fetch("/api/register/student", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(registrationData),
       });
 
@@ -81,7 +121,7 @@ export default function StudentRegistrationForm() {
 
       if (!registrationResponse.ok) {
         const errorData = await registrationResponse.json();
-        throw new Error(errorData.error || 'Registration failed');
+        throw new Error(errorData.error || "Registration failed");
       }
 
       const result = await registrationResponse.json();
@@ -90,7 +130,7 @@ export default function StudentRegistrationForm() {
       // Redirect to payment page
       router.push(`/register/payment/${result.registrationId}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
       setUploadProgress(0);
     } finally {
       setIsSubmitting(false);
@@ -101,7 +141,10 @@ export default function StudentRegistrationForm() {
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12">
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto">
-          <Link href="/register" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6">
+          <Link
+            href="/register"
+            className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6"
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Registration Types
           </Link>
@@ -110,7 +153,8 @@ export default function StudentRegistrationForm() {
             <CardHeader>
               <CardTitle>Student Registration</CardTitle>
               <CardDescription>
-                Complete the form below to register as a student. Please ensure all information is accurate.
+                Complete the form below to register as a student. Please ensure
+                all information is accurate.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -123,17 +167,22 @@ export default function StudentRegistrationForm() {
 
                 {/* Personal Information */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
-                  
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Personal Information
+                  </h3>
+
                   <div>
                     <Label htmlFor="fullName">Full Name *</Label>
                     <Input
                       id="fullName"
-                      {...register('fullName')}
+                      className="bg-white text-gray-900 placeholder:text-gray-400"
+                      {...register("fullName")}
                       placeholder="Enter your full name"
                     />
                     {errors.fullName?.message && (
-                      <p className="text-red-600 text-sm mt-1">{errors.fullName.message}</p>
+                      <p className="text-red-600 text-sm mt-1">
+                        {errors.fullName.message}
+                      </p>
                     )}
                   </div>
 
@@ -143,11 +192,14 @@ export default function StudentRegistrationForm() {
                       <Input
                         id="email"
                         type="email"
-                        {...register('email')}
+                        className="bg-white text-gray-900 placeholder:text-gray-400"
+                        {...register("email")}
                         placeholder="your.email@example.com"
                       />
                       {errors.email?.message && (
-                        <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>
+                        <p className="text-red-600 text-sm mt-1">
+                          {errors.email.message}
+                        </p>
                       )}
                     </div>
 
@@ -155,11 +207,14 @@ export default function StudentRegistrationForm() {
                       <Label htmlFor="phone">Mobile Number *</Label>
                       <Input
                         id="phone"
-                        {...register('phone')}
+                        className="bg-white text-gray-900 placeholder:text-gray-400"
+                        {...register("phone")}
                         placeholder="+91 98765 43210"
                       />
                       {errors.phone?.message && (
-                        <p className="text-red-600 text-sm mt-1">{errors.phone.message}</p>
+                        <p className="text-red-600 text-sm mt-1">
+                          {errors.phone.message}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -169,11 +224,14 @@ export default function StudentRegistrationForm() {
                       <Label htmlFor="country">Country *</Label>
                       <Input
                         id="country"
-                        {...register('country')}
+                        className="bg-white text-gray-900 placeholder:text-gray-400"
+                        {...register("country")}
                         placeholder="India"
                       />
                       {errors.country?.message && (
-                        <p className="text-red-600 text-sm mt-1">{errors.country.message}</p>
+                        <p className="text-red-600 text-sm mt-1">
+                          {errors.country.message}
+                        </p>
                       )}
                     </div>
 
@@ -181,11 +239,14 @@ export default function StudentRegistrationForm() {
                       <Label htmlFor="state">State *</Label>
                       <Input
                         id="state"
-                        {...register('state')}
+                        className="bg-white text-gray-900 placeholder:text-gray-400"
+                        {...register("state")}
                         placeholder="Karnataka"
                       />
                       {errors.state?.message && (
-                        <p className="text-red-600 text-sm mt-1">{errors.state.message}</p>
+                        <p className="text-red-600 text-sm mt-1">
+                          {errors.state.message}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -193,17 +254,24 @@ export default function StudentRegistrationForm() {
 
                 {/* Academic Information */}
                 <div className="space-y-4 pt-4 border-t">
-                  <h3 className="text-lg font-semibold text-gray-900">Academic Information</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Academic Information
+                  </h3>
 
                   <div>
-                    <Label htmlFor="collegeName">College/University Name *</Label>
+                    <Label htmlFor="collegeName">
+                      College/University Name *
+                    </Label>
                     <Input
                       id="collegeName"
-                      {...register('collegeName')}
+                      className="bg-white text-gray-900 placeholder:text-gray-400"
+                      {...register("collegeName")}
                       placeholder="Enter your institution name"
                     />
                     {errors.collegeName?.message && (
-                      <p className="text-red-600 text-sm mt-1">{errors.collegeName.message}</p>
+                      <p className="text-red-600 text-sm mt-1">
+                        {errors.collegeName.message}
+                      </p>
                     )}
                   </div>
 
@@ -212,11 +280,14 @@ export default function StudentRegistrationForm() {
                       <Label htmlFor="degreeProgram">Degree/Program *</Label>
                       <Input
                         id="degreeProgram"
-                        {...register('degreeProgram')}
+                        className="bg-white text-gray-900 placeholder:text-gray-400"
+                        {...register("degreeProgram")}
                         placeholder="B.Tech Computer Science"
                       />
                       {errors.degreeProgram?.message && (
-                        <p className="text-red-600 text-sm mt-1">{errors.degreeProgram.message}</p>
+                        <p className="text-red-600 text-sm mt-1">
+                          {errors.degreeProgram.message}
+                        </p>
                       )}
                     </div>
 
@@ -224,38 +295,53 @@ export default function StudentRegistrationForm() {
                       <Label htmlFor="department">Department *</Label>
                       <Input
                         id="department"
-                        {...register('department')}
+                        className="bg-white text-gray-900 placeholder:text-gray-400"
+                        {...register("department")}
                         placeholder="Computer Science"
                       />
                       {errors.department?.message && (
-                        <p className="text-red-600 text-sm mt-1">{errors.department.message}</p>
+                        <p className="text-red-600 text-sm mt-1">
+                          {errors.department.message}
+                        </p>
                       )}
                     </div>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="currentYear">Current Year/Semester *</Label>
+                      <Label htmlFor="currentYear">
+                        Current Year/Semester *
+                      </Label>
                       <Input
                         id="currentYear"
-                        {...register('currentYear')}
+                        className="bg-white text-gray-900 placeholder:text-gray-400"
+                        {...register("currentYear")}
                         placeholder="3rd Year / 5th Semester"
                       />
                       {errors.currentYear?.message && (
-                        <p className="text-red-600 text-sm mt-1">{errors.currentYear.message}</p>
+                        <p className="text-red-600 text-sm mt-1">
+                          {errors.currentYear.message}
+                        </p>
                       )}
                     </div>
 
                     <div>
-                      <Label htmlFor="expectedGraduationYear">Expected Graduation Year *</Label>
+                      <Label htmlFor="expectedGraduationYear">
+                        Expected Graduation Year *
+                      </Label>
                       <Input
                         id="expectedGraduationYear"
                         type="number"
-                        {...register('expectedGraduationYear', { valueAsNumber: true })}
+                        className="bg-white text-gray-900 placeholder:text-gray-400"
+                        {...register("expectedGraduationYear", {
+                          valueAsNumber: true,
+                        })}
                         placeholder="2026"
                       />
                       {errors.expectedGraduationYear?.message && (
-                        <p className="text-red-600 text-sm mt-1">{errors.expectedGraduationYear.message}</p>
+                        <p className="text-red-600 text-sm mt-1">
+                          {errors.expectedGraduationYear.message}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -263,9 +349,12 @@ export default function StudentRegistrationForm() {
 
                 {/* Document Upload */}
                 <div className="space-y-4 pt-4 border-t">
-                  <h3 className="text-lg font-semibold text-gray-900">Student ID Document *</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Student ID Document *
+                  </h3>
                   <p className="text-sm text-gray-600">
-                    Upload a clear photo of your student ID card. Accepted formats: JPEG, PNG, PDF. Maximum size: 5MB.
+                    Upload a clear photo of your student ID card. Accepted
+                    formats: JPEG, PNG, PDF. Maximum size: 5MB.
                   </p>
 
                   <div>
@@ -275,12 +364,14 @@ export default function StudentRegistrationForm() {
                         id="studentIdDocument"
                         type="file"
                         accept="image/jpeg,image/png,application/pdf"
-                        {...register('studentIdDocument')}
-                        className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                        {...register("studentIdDocument")}
+                        className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 bg-white text-gray-900 placeholder:text-gray-400"
                       />
                     </div>
                     {errors.studentIdDocument?.message && (
-                      <p className="text-red-600 text-sm mt-1">{String(errors.studentIdDocument.message)}</p>
+                      <p className="text-red-600 text-sm mt-1">
+                        {String(errors.studentIdDocument.message)}
+                      </p>
                     )}
                   </div>
 
@@ -296,14 +387,18 @@ export default function StudentRegistrationForm() {
 
                 {/* Additional Information */}
                 <div className="space-y-4 pt-4 border-t">
-                  <h3 className="text-lg font-semibold text-gray-900">Additional Information</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Additional Information
+                  </h3>
 
                   <div>
-                    <Label htmlFor="additionalInfo">Additional Information (Optional)</Label>
+                    <Label htmlFor="additionalInfo">
+                      Additional Information (Optional)
+                    </Label>
                     <textarea
                       id="additionalInfo"
-                      {...register('additionalInfo')}
-                      className="flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 min-h-[100px]"
+                      {...register("additionalInfo")}
+                      className="flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 min-h-[100px] bg-white text-gray-900 placeholder:text-gray-400"
                       placeholder="Any additional information you'd like to share"
                     />
                   </div>
@@ -315,22 +410,25 @@ export default function StudentRegistrationForm() {
                     <input
                       type="checkbox"
                       id="consentPrivacy"
-                      {...register('consentPrivacy')}
+                      {...register("consentPrivacy")}
                       className="mt-1"
                     />
                     <Label htmlFor="consentPrivacy" className="text-sm">
-                      I consent to the privacy policy and agree to the collection and processing of my personal data *
+                      I consent to the privacy policy and agree to the
+                      collection and processing of my personal data *
                     </Label>
                   </div>
                   {errors.consentPrivacy?.message && (
-                    <p className="text-red-600 text-sm">{errors.consentPrivacy.message}</p>
+                    <p className="text-red-600 text-sm">
+                      {errors.consentPrivacy.message}
+                    </p>
                   )}
 
                   <div className="flex items-start gap-3">
                     <input
                       type="checkbox"
                       id="consentTerms"
-                      {...register('consentTerms')}
+                      {...register("consentTerms")}
                       className="mt-1"
                     />
                     <Label htmlFor="consentTerms" className="text-sm">
@@ -338,7 +436,9 @@ export default function StudentRegistrationForm() {
                     </Label>
                   </div>
                   {errors.consentTerms?.message && (
-                    <p className="text-red-600 text-sm">{errors.consentTerms.message}</p>
+                    <p className="text-red-600 text-sm">
+                      {errors.consentTerms.message}
+                    </p>
                   )}
                 </div>
 
@@ -354,7 +454,7 @@ export default function StudentRegistrationForm() {
                       Submitting Registration...
                     </>
                   ) : (
-                    'Submit Registration'
+                    "Submit Registration"
                   )}
                 </Button>
               </form>

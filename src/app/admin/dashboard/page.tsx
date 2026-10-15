@@ -1,10 +1,10 @@
 import { redirect } from 'next/navigation';
 import { auth, isAdminRole } from '@/lib/auth';
 import { db } from '@/db';
-import { registrations, payments } from '@/db/schema';
-import { eq, and, count, sql } from 'drizzle-orm';
+import { paymentWebhookEvents, registrations, payments } from '@/db/schema';
+import { eq, count, sql } from 'drizzle-orm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, GraduationCap, Briefcase, DollarSign, Clock, CheckCircle, XCircle, TrendingUp } from 'lucide-react';
+import { Users, GraduationCap, Briefcase, DollarSign, Clock, CheckCircle, XCircle, CircleAlert, CalendarClock } from 'lucide-react';
 import Link from 'next/link';
 
 async function getDashboardStats() {
@@ -19,7 +19,10 @@ async function getDashboardStats() {
     pendingVerifications,
     approvedRegistrations,
     rejectedRegistrations,
-    totalRevenue,
+    expiredPayments,
+    grossRevenue,
+    netRevenue,
+    unresolvedEvents,
   ] = await Promise.all([
     db.select({ count: count() }).from(registrations),
     db.select({ count: count() }).from(registrations).where(eq(registrations.registrationType, 'student')),
@@ -27,11 +30,14 @@ async function getDashboardStats() {
     db.select({ count: count() }).from(registrations).where(eq(registrations.registrationType, 'other')),
     db.select({ count: count() }).from(registrations).where(eq(registrations.paymentStatus, 'paid')),
     db.select({ count: count() }).from(registrations).where(eq(registrations.paymentStatus, 'pending')),
-    db.select({ count: count() }).from(registrations).where(eq(registrations.paymentStatus, 'failed')),
+    db.select({ count: count() }).from(payments).where(eq(payments.paymentStatus, 'failed')),
     db.select({ count: count() }).from(registrations).where(eq(registrations.verificationStatus, 'pending')),
     db.select({ count: count() }).from(registrations).where(eq(registrations.verificationStatus, 'approved')),
     db.select({ count: count() }).from(registrations).where(eq(registrations.verificationStatus, 'rejected')),
-    db.select({ total: sql<number>`COALESCE(SUM(${registrations.paymentAmount}), 0)` }).from(registrations).where(eq(registrations.paymentStatus, 'paid')),
+    db.select({ count: count() }).from(registrations).where(eq(registrations.paymentStatus, 'expired')),
+    db.select({ total: sql<number>`COALESCE(SUM(${payments.amountPaise}), 0)::int` }).from(payments).where(sql`${payments.paymentStatus} IN ('paid', 'partially_refunded', 'refunded')`),
+    db.select({ total: sql<number>`COALESCE(SUM(${payments.amountPaise} - ${payments.refundedAmountPaise}), 0)::int` }).from(payments).where(sql`${payments.paymentStatus} IN ('paid', 'partially_refunded', 'refunded')`),
+    db.select({ count: count() }).from(paymentWebhookEvents).where(eq(paymentWebhookEvents.reconciliationStatus, 'unresolved')),
   ]);
 
   return {
@@ -45,7 +51,10 @@ async function getDashboardStats() {
     pendingVerifications: pendingVerifications[0]?.count || 0,
     approvedRegistrations: approvedRegistrations[0]?.count || 0,
     rejectedRegistrations: rejectedRegistrations[0]?.count || 0,
-    totalRevenue: totalRevenue[0]?.total || 0,
+    expiredPayments: expiredPayments[0]?.count || 0,
+    grossRevenue: grossRevenue[0]?.total || 0,
+    netRevenue: netRevenue[0]?.total || 0,
+    unresolvedEvents: unresolvedEvents[0]?.count || 0,
   };
 }
 
@@ -78,7 +87,7 @@ export default async function AdminDashboard() {
       color: 'purple',
     },
     {
-      title: 'Other Registrations',
+      title: 'Historical Other Registrations',
       value: stats.otherRegistrations,
       icon: Users,
       color: 'orange',
@@ -102,6 +111,12 @@ export default async function AdminDashboard() {
       color: 'red',
     },
     {
+      title: 'Expired Payments',
+      value: stats.expiredPayments,
+      icon: CalendarClock,
+      color: 'red',
+    },
+    {
       title: 'Pending Verifications',
       value: stats.pendingVerifications,
       icon: Clock,
@@ -120,10 +135,22 @@ export default async function AdminDashboard() {
       color: 'red',
     },
     {
-      title: 'Total Revenue',
-      value: `₹${stats.totalRevenue.toLocaleString()}`,
+      title: 'Confirmed revenue (gross)',
+      value: `₹${(stats.grossRevenue / 100).toLocaleString('en-IN')}`,
       icon: DollarSign,
       color: 'green',
+    },
+    {
+      title: 'Confirmed revenue (net)',
+      value: `₹${(stats.netRevenue / 100).toLocaleString('en-IN')}`,
+      icon: DollarSign,
+      color: 'blue',
+    },
+    {
+      title: 'Unresolved Payment Events',
+      value: stats.unresolvedEvents,
+      icon: CircleAlert,
+      color: 'orange',
     },
   ];
 
@@ -153,7 +180,7 @@ export default async function AdminDashboard() {
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {statCards.map((card) => {
             const Icon = card.icon;
             const colorClasses = {
@@ -189,7 +216,7 @@ export default async function AdminDashboard() {
               <CardTitle>Recent Activity</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-600">Recent registrations and payments will appear here.</p>
+              <Link href="/admin/registrations" className="text-sm font-medium text-blue-700 hover:underline">Review registrations</Link>
             </CardContent>
           </Card>
 
@@ -198,6 +225,12 @@ export default async function AdminDashboard() {
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
+              <Link href="/admin/payments/reconciliation">
+                <button className="w-full text-left px-4 py-3 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors">
+                  <div className="font-medium text-orange-900">Review unresolved payments</div>
+                  <div className="text-sm text-orange-700">{stats.unresolvedEvents} require reconciliation</div>
+                </button>
+              </Link>
               <Link href="/admin/registrations?verificationStatus=pending">
                 <button className="w-full text-left px-4 py-3 bg-yellow-50 border border-yellow-200 rounded-lg hover:bg-yellow-100 transition-colors">
                   <div className="font-medium text-yellow-900">Review Pending Verifications</div>

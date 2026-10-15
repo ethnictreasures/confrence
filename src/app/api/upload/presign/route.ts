@@ -4,11 +4,11 @@ import { generateObjectKey, generatePresignedUploadUrl } from '@/lib/r2';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { contentType } = body;
+    const { contentType, size } = body as { contentType?: unknown; size?: unknown };
 
-    if (!contentType) {
+    if (typeof contentType !== 'string' || typeof size !== 'number' || !Number.isInteger(size) || size <= 0 || size > 5 * 1024 * 1024) {
       return NextResponse.json(
-        { error: 'contentType is required' },
+        { error: 'A valid content type and file size up to 5MB are required' },
         { status: 400 }
       );
     }
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     }
 
     const objectKey = generateObjectKey();
-    const uploadUrl = await generatePresignedUploadUrl(objectKey, contentType);
+    const uploadUrl = await generatePresignedUploadUrl(objectKey, contentType, size);
 
     return NextResponse.json({ uploadUrl, objectKey });
   } catch (error) {

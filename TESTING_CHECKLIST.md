@@ -58,16 +58,10 @@
 - [ ] Form submission creates registration record
 - [ ] Success redirect to payment page works
 
-#### Other Participant Registration
-- [ ] Form loads without errors
-- [ ] All required fields are marked
-- [ ] Participant category validation works
-- [ ] Occupation validation works
-- [ ] Purpose of attending validation works (min 10 characters)
-- [ ] Organization name is optional
-- [ ] Supporting document is optional
-- [ ] Form submission works with and without document
-- [ ] Success redirect to payment page works
+#### Historical Other records (admin only)
+- [ ] Existing Other registrations still appear in the admin list and detail view
+- [ ] Category filter includes Historical Other
+- [ ] Public registration offers only Student and Industry Professional
 
 ### Document Upload Testing
 
@@ -163,7 +157,7 @@
   - [ ] Total registrations
   - [ ] Student registrations
   - [ ] Industry registrations
-  - [ ] Other registrations
+  - [ ] Historical Other registrations
   - [ ] Paid registrations
   - [ ] Pending payments
   - [ ] Failed payments
@@ -207,7 +201,7 @@
 - [ ] Category-specific information displays:
   - [ ] Student: college, degree, department, year, graduation
   - [ ] Industry: job title, company, industry, department, experience
-  - [ ] Other: category, occupation, organization, purpose
+  - [ ] Historical Other: category, occupation, organization, purpose
 - [ ] Document section displays:
   - [ ] Document name
   - [ ] Document type

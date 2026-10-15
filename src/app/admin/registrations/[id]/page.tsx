@@ -4,10 +4,11 @@ import { db } from '@/db';
 import { registrations, auditLogs } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Download, CheckCircle, XCircle, Clock, FileText } from 'lucide-react';
+import { ArrowLeft, Download, FileText } from 'lucide-react';
 import Link from 'next/link';
+import VerificationActions from './VerificationActions';
 
 async function getRegistration(id: string) {
   const [registration] = await db
@@ -31,7 +32,7 @@ async function getAuditLogs(registrationId: string) {
 export default async function RegistrationDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const session = await auth();
 
@@ -39,8 +40,9 @@ export default async function RegistrationDetailPage({
     redirect('/admin/login');
   }
 
-  const registration = await getRegistration(params.id);
-  const auditLogs = await getAuditLogs(params.id);
+  const { id } = await params;
+  const registration = await getRegistration(id);
+  const auditLogs = await getAuditLogs(id);
 
   if (!registration) {
     return (
@@ -60,9 +62,13 @@ export default async function RegistrationDetailPage({
       payment: {
         paid: 'bg-green-100 text-green-800',
         pending: 'bg-yellow-100 text-yellow-800',
+        partially_paid: 'bg-amber-100 text-amber-800',
         failed: 'bg-red-100 text-red-800',
         expired: 'bg-gray-100 text-gray-800',
+        cancelled: 'bg-gray-100 text-gray-800',
         refunded: 'bg-blue-100 text-blue-800',
+        partially_refunded: 'bg-blue-100 text-blue-800',
+        requires_reconciliation: 'bg-orange-100 text-orange-800',
       },
       verification: {
         approved: 'bg-green-100 text-green-800',
@@ -109,7 +115,7 @@ export default async function RegistrationDetailPage({
                   'payment'
                 )}`}
               >
-                {registration.paymentStatus}
+                {registration.paymentStatus.replaceAll('_', ' ')}
               </span>
             </div>
           </div>
@@ -258,9 +264,11 @@ export default async function RegistrationDetailPage({
                         </p>
                       </div>
                     </div>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={`/api/admin/registrations/${registration.id}/document`} target="_blank" rel="noreferrer">
                       <Download className="w-4 h-4 mr-2" />
                       Download
+                      </a>
                     </Button>
                   </div>
                 ) : (
@@ -277,12 +285,24 @@ export default async function RegistrationDetailPage({
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
-                  <Label className="text-sm text-gray-600">Amount</Label>
-                  <p className="font-semibold text-lg">
-                    {registration.paymentAmount
-                      ? `₹${Number(registration.paymentAmount).toLocaleString()}`
-                      : '-'}
-                  </p>
+                  <Label className="text-sm text-gray-600">Base fee</Label>
+                  <p className="font-medium">{registration.baseFeePaise === null ? '-' : `₹${(registration.baseFeePaise / 100).toLocaleString('en-IN')}`}</p>
+                </div>
+                <div>
+                  <Label className="text-sm text-gray-600">GST ({registration.gstRate ?? 'N/A'}%)</Label>
+                  <p className="font-medium">{registration.gstAmountPaise === null ? '-' : `₹${(registration.gstAmountPaise / 100).toLocaleString('en-IN')}`}</p>
+                </div>
+                <div>
+                  <Label className="text-sm text-gray-600">Total payable</Label>
+                  <p className="font-semibold text-lg">{registration.totalAmountPaise === null ? (registration.paymentAmount ? `₹${Number(registration.paymentAmount).toLocaleString('en-IN')}` : '-') : `₹${(registration.totalAmountPaise / 100).toLocaleString('en-IN')}`}</p>
+                </div>
+                <div>
+                  <Label className="text-sm text-gray-600">Amount received</Label>
+                  <p className="font-medium">₹{(registration.amountPaidPaise / 100).toLocaleString('en-IN')}</p>
+                </div>
+                <div>
+                  <Label className="text-sm text-gray-600">Reconciliation</Label>
+                  <p className="font-medium capitalize">{registration.paymentReconciliationStatus.replaceAll('_', ' ')}</p>
                 </div>
                 <div>
                   <Label className="text-sm text-gray-600">Payment Status</Label>
@@ -292,7 +312,7 @@ export default async function RegistrationDetailPage({
                       'payment'
                     )}`}
                   >
-                    {registration.paymentStatus}
+                    {registration.paymentStatus.replaceAll('_', ' ')}
                   </span>
                 </div>
                 <div>
@@ -310,19 +330,8 @@ export default async function RegistrationDetailPage({
               <CardHeader>
                 <CardTitle>Verification Actions</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <Button className="w-full" variant="default">
-                  <CheckCircle className="w-4 h-4 mr-2" />
-                  Approve
-                </Button>
-                <Button className="w-full" variant="destructive">
-                  <XCircle className="w-4 h-4 mr-2" />
-                  Reject
-                </Button>
-                <Button className="w-full" variant="outline">
-                  <Clock className="w-4 h-4 mr-2" />
-                  Request Additional Info
-                </Button>
+              <CardContent>
+                <VerificationActions registrationId={registration.id} currentStatus={registration.verificationStatus} />
               </CardContent>
             </Card>
 

@@ -1,8 +1,10 @@
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, Loader2, ExternalLink } from 'lucide-react';
+import { CheckCircle, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
+import { getVerifiedPaymentLink } from '@/lib/razorpay';
+import type { NewRegistrationType } from '@/config/conference';
 
 async function getRegistration(id: string) {
   try {
@@ -22,20 +24,22 @@ async function getRegistration(id: string) {
   }
 }
 
-export default async function PaymentPage({ params }: { params: { id: string } }) {
-  const registration = await getRegistration(params.id);
+export default async function PaymentPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const registration = await getRegistration(id);
 
   if (!registration) {
     notFound();
   }
 
-  const feeAmounts: Record<string, number> = {
-    student: 1500,
-    industry_professional: 3000,
-    other: 2000,
-  };
-
-  const amount = feeAmounts[registration.registrationType] || 0;
+  const hasNewCategory = registration.registrationType === 'student' || registration.registrationType === 'industry_professional';
+  const paymentUrl = hasNewCategory && registration.paymentStatus !== 'paid' && registration.paymentStatus !== 'refunded'
+    ? await getVerifiedPaymentLink(registration.registrationType as NewRegistrationType)
+    : null;
+  const totalPaise = registration.totalAmountPaise;
+  const baseFeePaise = registration.baseFeePaise;
+  const gstAmountPaise = registration.gstAmountPaise;
+  const formatRupees = (paise: number) => `₹${(paise / 100).toLocaleString('en-IN')}`;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12">
@@ -65,26 +69,43 @@ export default async function PaymentPage({ params }: { params: { id: string } }
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Registration Number:</span>
-                    <span className="font-medium">{registration.registrationNumber}</span>
+                    <span className="font-medium text-blue-900">{registration.registrationNumber}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Name:</span>
-                    <span className="font-medium">{registration.fullName}</span>
+                    <span className="font-medium text-blue-900">{registration.fullName}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Email:</span>
-                    <span className="font-medium">{registration.email}</span>
+                    <span className="font-medium text-blue-900">{registration.email}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Category:</span>
-                    <span className="font-medium capitalize">
+                    <span className="font-medium capitalize text-blue-900">
                       {registration.registrationType.replace('_', ' ')}
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Registration Fee:</span>
-                    <span className="font-semibold text-lg">₹{amount.toLocaleString()}</span>
-                  </div>
+                  {baseFeePaise !== null && gstAmountPaise !== null && totalPaise !== null ? (
+                    <>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Base Fee:</span>
+                        <span className="font-medium text-blue-900">{formatRupees(baseFeePaise)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">GST ({registration.gstRate}%):</span>
+                        <span className="font-medium text-blue-900">{formatRupees(gstAmountPaise)}</span>
+                      </div>
+                      <div className="flex justify-between border-t border-blue-200 pt-2">
+                        <span className="font-semibold text-gray-900">Total Payable:</span>
+                        <span className="font-semibold text-lg text-blue-900">{formatRupees(totalPaise)}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Recorded Total:</span>
+                      <span className="font-semibold text-lg text-blue-900">{registration.paymentAmount ? `₹${Number(registration.paymentAmount).toLocaleString('en-IN')}` : 'Unavailable'}</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -94,7 +115,7 @@ export default async function PaymentPage({ params }: { params: { id: string } }
                   <li>Complete the payment using the link below</li>
                   <li>Your document will be reviewed by our team</li>
                   <li>You will receive confirmation once verified</li>
-                  <li>Bring your registration confirmation to the event</li>
+                  <li>Attend the virtual programme on October 31 – November 1, 2026</li>
                 </ol>
               </div>
 
@@ -103,17 +124,18 @@ export default async function PaymentPage({ params }: { params: { id: string } }
                 <p className="text-sm text-gray-600 mb-4">
                   Click the button below to proceed to the secure payment gateway. You will be redirected to Razorpay to complete your payment.
                 </p>
-                <Button className="w-full" size="lg" asChild>
-                  <a
-                    href="https://rzp.io/l/demo"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2"
-                  >
-                    Pay ₹{amount.toLocaleString()}
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
-                </Button>
+                {paymentUrl ? (
+                  <Button className="w-full" size="lg" asChild>
+                    <a href={paymentUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
+                      Proceed to Payment{totalPaise !== null ? ` · ${formatRupees(totalPaise)}` : ''}
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  </Button>
+                ) : (
+                  <p role="status" className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+                    Online payment is temporarily unavailable because the configured Razorpay Payment Link could not be verified. Your registration is saved; please contact the organizer.
+                  </p>
+                )}
                 <p className="text-xs text-gray-500 mt-2 text-center">
                   After payment, return to this page to check your status
                 </p>
@@ -132,7 +154,7 @@ export default async function PaymentPage({ params }: { params: { id: string } }
               </div>
 
               <div className="text-center text-sm text-gray-500">
-                <p>For assistance, contact us at support@techconference2025.com</p>
+                <p>For assistance, contact the conference organizer.</p>
               </div>
             </CardContent>
           </Card>
