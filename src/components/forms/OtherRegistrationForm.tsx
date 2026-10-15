@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { otherRegistrationSchema, type OtherRegistrationInput } from '@/lib/validation';
@@ -12,6 +13,7 @@ import { ArrowLeft, Upload, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function OtherRegistrationForm() {
+  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -34,13 +36,11 @@ export default function OtherRegistrationForm() {
 
       if (data.supportingDocument && data.supportingDocument instanceof File) {
         const file = data.supportingDocument;
-        const objectKey = `${Date.now()}-${Math.random().toString(36).substring(2)}`;
 
         const presignedResponse = await fetch('/api/upload/presign', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            objectKey,
             contentType: file.type,
           }),
         });
@@ -49,7 +49,7 @@ export default function OtherRegistrationForm() {
           throw new Error('Failed to get upload URL');
         }
 
-        const { uploadUrl } = await presignedResponse.json();
+        const { uploadUrl, objectKey } = await presignedResponse.json();
 
         setUploadProgress(10);
         const uploadResponse = await fetch(uploadUrl, {
@@ -92,7 +92,7 @@ export default function OtherRegistrationForm() {
       const result = await registrationResponse.json();
       setUploadProgress(100);
 
-      window.location.href = `/register/payment/${result.registrationId}`;
+      router.push(`/register/payment/${result.registrationId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
       setUploadProgress(0);
@@ -131,20 +131,20 @@ export default function OtherRegistrationForm() {
                   <div>
                     <Label htmlFor="fullName">Full Name *</Label>
                     <Input id="fullName" {...register('fullName')} placeholder="Enter your full name" />
-                    {errors.fullName && <p className="text-red-600 text-sm mt-1">{errors.fullName.message}</p>}
+                    {errors.fullName?.message && <p className="text-red-600 text-sm mt-1">{errors.fullName.message}</p>}
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="email">Email Address *</Label>
                       <Input id="email" type="email" {...register('email')} placeholder="your.email@example.com" />
-                      {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>}
+                      {errors.email?.message && <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>}
                     </div>
 
                     <div>
                       <Label htmlFor="phone">Mobile Number *</Label>
                       <Input id="phone" {...register('phone')} placeholder="+91 98765 43210" />
-                      {errors.phone && <p className="text-red-600 text-sm mt-1">{errors.phone.message}</p>}
+                      {errors.phone?.message && <p className="text-red-600 text-sm mt-1">{errors.phone.message}</p>}
                     </div>
                   </div>
 
@@ -152,13 +152,13 @@ export default function OtherRegistrationForm() {
                     <div>
                       <Label htmlFor="country">Country *</Label>
                       <Input id="country" {...register('country')} placeholder="India" />
-                      {errors.country && <p className="text-red-600 text-sm mt-1">{errors.country.message}</p>}
+                      {errors.country?.message && <p className="text-red-600 text-sm mt-1">{errors.country.message}</p>}
                     </div>
 
                     <div>
                       <Label htmlFor="state">State *</Label>
                       <Input id="state" {...register('state')} placeholder="Karnataka" />
-                      {errors.state && <p className="text-red-600 text-sm mt-1">{errors.state.message}</p>}
+                      {errors.state?.message && <p className="text-red-600 text-sm mt-1">{errors.state.message}</p>}
                     </div>
                   </div>
                 </div>
@@ -170,13 +170,13 @@ export default function OtherRegistrationForm() {
                     <div>
                       <Label htmlFor="participantCategory">Participant Category *</Label>
                       <Input id="participantCategory" {...register('participantCategory')} placeholder="Researcher" />
-                      {errors.participantCategory && <p className="text-red-600 text-sm mt-1">{errors.participantCategory.message}</p>}
+                      {errors.participantCategory?.message && <p className="text-red-600 text-sm mt-1">{errors.participantCategory.message}</p>}
                     </div>
 
                     <div>
                       <Label htmlFor="occupation">Occupation *</Label>
                       <Input id="occupation" {...register('occupation')} placeholder="Professor" />
-                      {errors.occupation && <p className="text-red-600 text-sm mt-1">{errors.occupation.message}</p>}
+                      {errors.occupation?.message && <p className="text-red-600 text-sm mt-1">{errors.occupation.message}</p>}
                     </div>
                   </div>
 
@@ -193,7 +193,7 @@ export default function OtherRegistrationForm() {
                       className="flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 min-h-[100px]"
                       placeholder="Please describe why you want to attend the conference"
                     />
-                    {errors.purposeOfAttending && <p className="text-red-600 text-sm mt-1">{errors.purposeOfAttending.message}</p>}
+                    {errors.purposeOfAttending?.message && <p className="text-red-600 text-sm mt-1">{errors.purposeOfAttending.message}</p>}
                   </div>
                 </div>
 
@@ -212,7 +212,7 @@ export default function OtherRegistrationForm() {
                       {...register('supportingDocument')}
                       className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                     />
-                    {errors.supportingDocument && <p className="text-red-600 text-sm mt-1">{errors.supportingDocument.message}</p>}
+                    {errors.supportingDocument?.message && <p className="text-red-600 text-sm mt-1">{String(errors.supportingDocument.message)}</p>}
                   </div>
 
                   {uploadProgress > 0 && uploadProgress < 100 && (
@@ -239,7 +239,7 @@ export default function OtherRegistrationForm() {
                       I consent to the privacy policy and agree to the collection and processing of my personal data *
                     </Label>
                   </div>
-                  {errors.consentPrivacy && <p className="text-red-600 text-sm">{errors.consentPrivacy.message}</p>}
+                  {errors.consentPrivacy?.message && <p className="text-red-600 text-sm">{errors.consentPrivacy.message}</p>}
 
                   <div className="flex items-start gap-3">
                     <input type="checkbox" id="consentTerms" {...register('consentTerms')} className="mt-1" />
@@ -247,7 +247,7 @@ export default function OtherRegistrationForm() {
                       I agree to the registration terms and conditions *
                     </Label>
                   </div>
-                  {errors.consentTerms && <p className="text-red-600 text-sm">{errors.consentTerms.message}</p>}
+                  {errors.consentTerms?.message && <p className="text-red-600 text-sm">{errors.consentTerms.message}</p>}
                 </div>
 
                 <Button type="submit" disabled={isSubmitting} className="w-full" size="lg">

@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generatePresignedUploadUrl } from '@/lib/r2';
+import { generateObjectKey, generatePresignedUploadUrl } from '@/lib/r2';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { objectKey, contentType } = body;
+    const { contentType } = body;
 
-    if (!objectKey || !contentType) {
+    if (!contentType) {
       return NextResponse.json(
-        { error: 'objectKey and contentType are required' },
+        { error: 'contentType is required' },
         { status: 400 }
       );
     }
@@ -21,9 +21,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const objectKey = generateObjectKey();
     const uploadUrl = await generatePresignedUploadUrl(objectKey, contentType);
 
-    return NextResponse.json({ uploadUrl });
+    return NextResponse.json({ uploadUrl, objectKey });
   } catch (error) {
     console.error('Error generating presigned URL:', error);
     return NextResponse.json(

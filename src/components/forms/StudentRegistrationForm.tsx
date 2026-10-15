@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { studentRegistrationSchema, type StudentRegistrationInput } from '@/lib/validation';
@@ -12,6 +13,7 @@ import { ArrowLeft, Upload, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function StudentRegistrationForm() {
+  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -32,13 +34,11 @@ export default function StudentRegistrationForm() {
     try {
       // Step 1: Get presigned upload URL
       const file = data.studentIdDocument;
-      const objectKey = `${Date.now()}-${Math.random().toString(36).substring(2)}`;
 
       const presignedResponse = await fetch('/api/upload/presign', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          objectKey,
           contentType: file.type,
         }),
       });
@@ -47,7 +47,7 @@ export default function StudentRegistrationForm() {
         throw new Error('Failed to get upload URL');
       }
 
-      const { uploadUrl } = await presignedResponse.json();
+      const { uploadUrl, objectKey } = await presignedResponse.json();
 
       // Step 2: Upload file to R2
       setUploadProgress(10);
@@ -88,7 +88,7 @@ export default function StudentRegistrationForm() {
       setUploadProgress(100);
 
       // Redirect to payment page
-      window.location.href = `/register/payment/${result.registrationId}`;
+      router.push(`/register/payment/${result.registrationId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
       setUploadProgress(0);
@@ -132,7 +132,7 @@ export default function StudentRegistrationForm() {
                       {...register('fullName')}
                       placeholder="Enter your full name"
                     />
-                    {errors.fullName && (
+                    {errors.fullName?.message && (
                       <p className="text-red-600 text-sm mt-1">{errors.fullName.message}</p>
                     )}
                   </div>
@@ -146,7 +146,7 @@ export default function StudentRegistrationForm() {
                         {...register('email')}
                         placeholder="your.email@example.com"
                       />
-                      {errors.email && (
+                      {errors.email?.message && (
                         <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>
                       )}
                     </div>
@@ -158,7 +158,7 @@ export default function StudentRegistrationForm() {
                         {...register('phone')}
                         placeholder="+91 98765 43210"
                       />
-                      {errors.phone && (
+                      {errors.phone?.message && (
                         <p className="text-red-600 text-sm mt-1">{errors.phone.message}</p>
                       )}
                     </div>
@@ -172,7 +172,7 @@ export default function StudentRegistrationForm() {
                         {...register('country')}
                         placeholder="India"
                       />
-                      {errors.country && (
+                      {errors.country?.message && (
                         <p className="text-red-600 text-sm mt-1">{errors.country.message}</p>
                       )}
                     </div>
@@ -184,7 +184,7 @@ export default function StudentRegistrationForm() {
                         {...register('state')}
                         placeholder="Karnataka"
                       />
-                      {errors.state && (
+                      {errors.state?.message && (
                         <p className="text-red-600 text-sm mt-1">{errors.state.message}</p>
                       )}
                     </div>
@@ -202,7 +202,7 @@ export default function StudentRegistrationForm() {
                       {...register('collegeName')}
                       placeholder="Enter your institution name"
                     />
-                    {errors.collegeName && (
+                    {errors.collegeName?.message && (
                       <p className="text-red-600 text-sm mt-1">{errors.collegeName.message}</p>
                     )}
                   </div>
@@ -215,7 +215,7 @@ export default function StudentRegistrationForm() {
                         {...register('degreeProgram')}
                         placeholder="B.Tech Computer Science"
                       />
-                      {errors.degreeProgram && (
+                      {errors.degreeProgram?.message && (
                         <p className="text-red-600 text-sm mt-1">{errors.degreeProgram.message}</p>
                       )}
                     </div>
@@ -227,7 +227,7 @@ export default function StudentRegistrationForm() {
                         {...register('department')}
                         placeholder="Computer Science"
                       />
-                      {errors.department && (
+                      {errors.department?.message && (
                         <p className="text-red-600 text-sm mt-1">{errors.department.message}</p>
                       )}
                     </div>
@@ -241,7 +241,7 @@ export default function StudentRegistrationForm() {
                         {...register('currentYear')}
                         placeholder="3rd Year / 5th Semester"
                       />
-                      {errors.currentYear && (
+                      {errors.currentYear?.message && (
                         <p className="text-red-600 text-sm mt-1">{errors.currentYear.message}</p>
                       )}
                     </div>
@@ -254,7 +254,7 @@ export default function StudentRegistrationForm() {
                         {...register('expectedGraduationYear', { valueAsNumber: true })}
                         placeholder="2026"
                       />
-                      {errors.expectedGraduationYear && (
+                      {errors.expectedGraduationYear?.message && (
                         <p className="text-red-600 text-sm mt-1">{errors.expectedGraduationYear.message}</p>
                       )}
                     </div>
@@ -279,8 +279,8 @@ export default function StudentRegistrationForm() {
                         className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                       />
                     </div>
-                    {errors.studentIdDocument && (
-                      <p className="text-red-600 text-sm mt-1">{errors.studentIdDocument.message}</p>
+                    {errors.studentIdDocument?.message && (
+                      <p className="text-red-600 text-sm mt-1">{String(errors.studentIdDocument.message)}</p>
                     )}
                   </div>
 
@@ -322,7 +322,7 @@ export default function StudentRegistrationForm() {
                       I consent to the privacy policy and agree to the collection and processing of my personal data *
                     </Label>
                   </div>
-                  {errors.consentPrivacy && (
+                  {errors.consentPrivacy?.message && (
                     <p className="text-red-600 text-sm">{errors.consentPrivacy.message}</p>
                   )}
 
@@ -337,7 +337,7 @@ export default function StudentRegistrationForm() {
                       I agree to the registration terms and conditions *
                     </Label>
                   </div>
-                  {errors.consentTerms && (
+                  {errors.consentTerms?.message && (
                     <p className="text-red-600 text-sm">{errors.consentTerms.message}</p>
                   )}
                 </div>

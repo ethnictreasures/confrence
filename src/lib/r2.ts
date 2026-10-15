@@ -1,26 +1,35 @@
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { randomUUID } from 'node:crypto';
 
-if (!process.env.R2_ACCOUNT_ID || !process.env.R2_ACCESS_KEY_ID || !process.env.R2_SECRET_ACCESS_KEY || !process.env.R2_BUCKET_NAME) {
-  throw new Error('R2 environment variables are not set');
+function getR2Client() {
+  if (!process.env.R2_ACCOUNT_ID || !process.env.R2_ACCESS_KEY_ID || !process.env.R2_SECRET_ACCESS_KEY || !process.env.R2_BUCKET_NAME) {
+    throw new Error('R2 environment variables are not set');
+  }
+  return new S3Client({
+    region: 'auto',
+    endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    credentials: {
+      accessKeyId: process.env.R2_ACCESS_KEY_ID,
+      secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+    },
+  });
 }
 
-const r2Client = new S3Client({
-  region: 'auto',
-  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-  credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
-  },
-});
-
-const BUCKET_NAME = process.env.R2_BUCKET_NAME;
+function getBucketName() {
+  if (!process.env.R2_BUCKET_NAME) {
+    throw new Error('R2_BUCKET_NAME environment variable is not set');
+  }
+  return process.env.R2_BUCKET_NAME;
+}
 
 export async function generatePresignedUploadUrl(
   objectKey: string,
   contentType: string,
   expiresIn: number = 900
 ): Promise<string> {
+  const r2Client = getR2Client();
+  const BUCKET_NAME = getBucketName();
   const command = new PutObjectCommand({
     Bucket: BUCKET_NAME,
     Key: objectKey,
@@ -34,6 +43,8 @@ export async function generatePresignedDownloadUrl(
   objectKey: string,
   expiresIn: number = 900
 ): Promise<string> {
+  const r2Client = getR2Client();
+  const BUCKET_NAME = getBucketName();
   const command = new GetObjectCommand({
     Bucket: BUCKET_NAME,
     Key: objectKey,
@@ -43,9 +54,7 @@ export async function generatePresignedDownloadUrl(
 }
 
 export function generateObjectKey(): string {
-  const timestamp = Date.now();
-  const random = Math.random().toString(36).substring(2, 15);
-  return `${timestamp}-${random}`;
+  return randomUUID();
 }
 
 export function validateFileMetadata(file: File): { valid: boolean; error?: string } {

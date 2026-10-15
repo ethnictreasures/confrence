@@ -3,8 +3,12 @@ import Credentials from 'next-auth/providers/credentials';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import { db } from '@/db';
-import { admins } from '@/db/schema';
+import { admins, type AdminRole } from '@/db/schema';
 import { eq } from 'drizzle-orm';
+
+export function isAdminRole(role: unknown): role is AdminRole {
+  return role === 'admin' || role === 'super_admin';
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
@@ -37,6 +41,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const passwordsMatch = await bcrypt.compare(password, admin.passwordHash);
         if (!passwordsMatch) return null;
 
+        if (!isAdminRole(admin.role)) return null;
+
         await db
           .update(admins)
           .set({ lastLoginAt: new Date() })
@@ -54,15 +60,25 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.role = user.role;
+        if (isAdminRole(user.role)) {
+          token.id = user.id;
+          token.role = user.role;
+        } else {
+          delete token.id;
+          delete token.role;
+        }
       }
       return token;
     },
     async session({ session, token }) {
-      if (token && session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as string;
+      if (session.user) {
+        if (typeof token.id === 'string') {
+          session.user.id = token.id;
+        }
+
+        if (isAdminRole(token.role)) {
+          session.user.role = token.role;
+        }
       }
       return session;
     },

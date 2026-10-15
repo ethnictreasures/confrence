@@ -3,6 +3,8 @@ import { db } from '@/db';
 import { registrations } from '@/db/schema';
 import { otherRegistrationSchema } from '@/lib/validation';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -14,7 +16,7 @@ export async function POST(request: NextRequest) {
     const [registration] = await db
       .insert(registrations)
       .values({
-        registrationNumber,
+        registrationNumber: registrationNumber,
         registrationType: 'other',
         fullName: validatedData.fullName,
         email: validatedData.email,
@@ -32,7 +34,7 @@ export async function POST(request: NextRequest) {
         additionalInfo: validatedData.additionalInfo,
         consentPrivacy: validatedData.consentPrivacy,
         consentTerms: validatedData.consentTerms,
-        paymentAmount: 2000,
+        paymentAmount: '2000',
         currency: 'INR',
         verificationStatus: 'pending',
         paymentStatus: 'pending',

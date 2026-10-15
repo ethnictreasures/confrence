@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { auth } from '@/lib/auth';
+import { auth, isAdminRole } from '@/lib/auth';
 import { db } from '@/db';
 import { registrations } from '@/db/schema';
 import { like, or, eq, and, desc } from 'drizzle-orm';
@@ -27,14 +27,17 @@ async function getRegistrations(searchParams: { search?: string; status?: string
 
   if (status) {
     if (status.startsWith('payment_')) {
-      conditions.push(eq(registrations.paymentStatus, status.replace('payment_', '')));
+      const paymentStatus = status.replace('payment_', '') as 'pending' | 'paid' | 'failed' | 'expired' | 'refunded';
+      conditions.push(eq(registrations.paymentStatus, paymentStatus));
     } else if (status.startsWith('verification_')) {
-      conditions.push(eq(registrations.verificationStatus, status.replace('verification_', '')));
+      const verificationStatus = status.replace('verification_', '') as 'pending' | 'approved' | 'rejected' | 'additional_info_required';
+      conditions.push(eq(registrations.verificationStatus, verificationStatus));
     }
   }
 
   if (type) {
-    conditions.push(eq(registrations.registrationType, type));
+    const registrationType = type as 'student' | 'industry_professional' | 'other';
+    conditions.push(eq(registrations.registrationType, registrationType));
   }
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
@@ -56,13 +59,13 @@ export default async function AdminRegistrationsPage({
 }) {
   const session = await auth();
 
-  if (!session) {
+  if (!session || !isAdminRole(session.user.role)) {
     redirect('/admin/login');
   }
 
   const registrations = await getRegistrations(searchParams);
 
-  const getStatusBadge = (status: string, type: 'payment' | 'verification') => {
+  const getStatusBadge = (status: string, badgeType: 'payment' | 'verification') => {
     const badges = {
       payment: {
         paid: 'bg-green-100 text-green-800',
@@ -79,7 +82,7 @@ export default async function AdminRegistrationsPage({
       },
     };
 
-    return badges[type][status as keyof typeof badges[type]] || 'bg-gray-100 text-gray-800';
+    return badges[badgeType][status as keyof typeof badges[typeof badgeType]] || 'bg-gray-100 text-gray-800';
   };
 
   return (
@@ -158,7 +161,7 @@ export default async function AdminRegistrationsPage({
                         {registration.collegeName || registration.companyName || '-'}
                       </td>
                       <td className="py-3 px-4 text-sm">
-                        {new Date(registration.createdAt).toLocaleDateString()}
+                        {registration.createdAt ? new Date(registration.createdAt).toLocaleDateString() : '-'}
                       </td>
                       <td className="py-3 px-4">
                         <span

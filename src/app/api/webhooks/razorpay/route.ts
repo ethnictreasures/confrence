@@ -4,6 +4,8 @@ import { db } from '@/db';
 import { registrations, payments } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const rawBody = await request.text();
@@ -44,7 +46,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const registrationId = notes.registrationId;
+      const registrationId = String(notes.registrationId);
 
       const existingPayment = await db
         .select()
@@ -59,11 +61,11 @@ export async function POST(request: NextRequest) {
 
       await db.transaction(async (tx) => {
         await tx.insert(payments).values({
-          registrationId,
+          registrationId: String(registrationId),
           provider: 'razorpay',
           paymentLinkId,
           razorpayPaymentId: payment_id,
-          amount: amount / 100,
+          amount: String(amount / 100),
           currency,
           paymentStatus: 'paid',
           webhookEventId: event.id,
@@ -89,15 +91,15 @@ export async function POST(request: NextRequest) {
       const paymentLinkId = eventData.id;
 
       if (notes && notes.registrationId) {
-        const registrationId = notes.registrationId;
+        const registrationId = String(notes.registrationId);
 
         await db.transaction(async (tx) => {
           await tx.insert(payments).values({
-            registrationId,
+            registrationId: String(registrationId),
             provider: 'razorpay',
             paymentLinkId,
             razorpayPaymentId: payment_id,
-            amount: eventData.amount / 100,
+            amount: String(eventData.amount / 100),
             currency: eventData.currency,
             paymentStatus: 'failed',
             webhookEventId: event.id,
@@ -121,7 +123,7 @@ export async function POST(request: NextRequest) {
       const paymentLinkId = eventData.id;
 
       if (notes && notes.registrationId) {
-        const registrationId = notes.registrationId;
+        const registrationId = String(notes.registrationId);
 
         await db
           .update(registrations)

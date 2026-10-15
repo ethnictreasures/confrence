@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { auth } from '@/lib/auth';
+import { auth, isAdminRole } from '@/lib/auth';
 import { db } from '@/db';
 import { registrations, auditLogs } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm';
@@ -35,7 +35,7 @@ export default async function RegistrationDetailPage({
 }) {
   const session = await auth();
 
-  if (!session) {
+  if (!session || !isAdminRole(session.user.role)) {
     redirect('/admin/login');
   }
 
@@ -55,7 +55,7 @@ export default async function RegistrationDetailPage({
     );
   }
 
-  const getStatusBadge = (status: string, type: 'payment' | 'verification') => {
+  const getStatusBadge = (status: string, badgeType: 'payment' | 'verification') => {
     const badges = {
       payment: {
         paid: 'bg-green-100 text-green-800',
@@ -72,7 +72,7 @@ export default async function RegistrationDetailPage({
       },
     };
 
-    return badges[type][status as keyof typeof badges[type]] || 'bg-gray-100 text-gray-800';
+    return badges[badgeType][status as keyof typeof badges[typeof badgeType]] || 'bg-gray-100 text-gray-800';
   };
 
   return (
@@ -254,7 +254,7 @@ export default async function RegistrationDetailPage({
                       <div>
                         <p className="font-medium">{registration.documentOriginalName}</p>
                         <p className="text-sm text-gray-600">
-                          {registration.documentMimeType} • {(registration.documentSize / 1024).toFixed(2)} KB
+                          {registration.documentMimeType} • {registration.documentSize ? (registration.documentSize / 1024).toFixed(2) : '0'} KB
                         </p>
                       </div>
                     </div>
@@ -338,13 +338,13 @@ export default async function RegistrationDetailPage({
                 <div>
                   <Label className="text-gray-600">Registered On</Label>
                   <p className="font-medium">
-                    {new Date(registration.createdAt).toLocaleString()}
+                    {registration.createdAt ? new Date(registration.createdAt).toLocaleString() : '-'}
                   </p>
                 </div>
                 <div>
                   <Label className="text-gray-600">Last Updated</Label>
                   <p className="font-medium">
-                    {new Date(registration.updatedAt).toLocaleString()}
+                    {registration.updatedAt ? new Date(registration.updatedAt).toLocaleString() : '-'}
                   </p>
                 </div>
               </CardContent>
@@ -361,7 +361,7 @@ export default async function RegistrationDetailPage({
                       <div key={log.id} className="text-sm border-b pb-2 last:border-0">
                         <p className="font-medium">{log.action}</p>
                         <p className="text-gray-600 text-xs">
-                          {new Date(log.createdAt).toLocaleString()}
+                          {log.createdAt ? new Date(log.createdAt).toLocaleString() : '-'}
                         </p>
                       </div>
                     ))}

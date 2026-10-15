@@ -20,6 +20,10 @@ export const studentRegistrationSchema = z.object({
   studentIdDocument: z.any().refine((file) => file instanceof File, 'Document is required')
     .refine((file) => file.size <= 5 * 1024 * 1024, 'File size must be less than 5MB')
     .refine((file) => ['image/jpeg', 'image/png', 'application/pdf'].includes(file.type), 'Only JPEG, PNG, and PDF files are allowed'),
+  documentObjectKey: z.string().optional(),
+  documentOriginalName: z.string().optional(),
+  documentMimeType: z.string().optional(),
+  documentSize: z.number().optional(),
   additionalInfo: z.string().optional(),
   consentPrivacy: z.boolean().refine((val) => val === true, 'You must consent to the privacy policy'),
   consentTerms: z.boolean().refine((val) => val === true, 'You must agree to the registration terms'),
@@ -40,6 +44,10 @@ export const industryRegistrationSchema = z.object({
   professionalDocument: z.any().refine((file) => file instanceof File, 'Document is required')
     .refine((file) => file.size <= 5 * 1024 * 1024, 'File size must be less than 5MB')
     .refine((file) => ['image/jpeg', 'image/png', 'application/pdf'].includes(file.type), 'Only JPEG, PNG, and PDF files are allowed'),
+  documentObjectKey: z.string().optional(),
+  documentOriginalName: z.string().optional(),
+  documentMimeType: z.string().optional(),
+  documentSize: z.number().optional(),
   additionalInfo: z.string().optional(),
   consentPrivacy: z.boolean().refine((val) => val === true, 'You must consent to the privacy policy'),
   consentTerms: z.boolean().refine((val) => val === true, 'You must agree to the registration terms'),
@@ -59,6 +67,10 @@ export const otherRegistrationSchema = z.object({
   supportingDocument: z.any().optional()
     .refine((file) => !file || file.size <= 5 * 1024 * 1024, 'File size must be less than 5MB')
     .refine((file) => !file || ['image/jpeg', 'image/png', 'application/pdf'].includes(file.type), 'Only JPEG, PNG, and PDF files are allowed'),
+  documentObjectKey: z.string().optional(),
+  documentOriginalName: z.string().optional(),
+  documentMimeType: z.string().optional(),
+  documentSize: z.number().optional(),
   additionalInfo: z.string().optional(),
   consentPrivacy: z.boolean().refine((val) => val === true, 'You must consent to the privacy policy'),
   consentTerms: z.boolean().refine((val) => val === true, 'You must agree to the registration terms'),

@@ -1,12 +1,9 @@
 import crypto from 'crypto';
+import { z } from 'zod';
 
-if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET || !process.env.RAZORPAY_WEBHOOK_SECRET) {
-  throw new Error('Razorpay environment variables are not set');
-}
-
-const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID;
-const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
-const RAZORPAY_WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET;
+const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID || '';
+const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || '';
+const RAZORPAY_WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET || '';
 
 export interface PaymentLinkData {
   amount: number;
@@ -20,7 +17,18 @@ export interface PaymentLinkData {
   notes?: Record<string, string>;
 }
 
-export async function createPaymentLink(data: PaymentLinkData): Promise<any> {
+const paymentLinkResponseSchema = z.object({
+  id: z.string(),
+  short_url: z.string().url(),
+  status: z.string(),
+});
+
+export type PaymentLinkResponse = z.infer<typeof paymentLinkResponseSchema>;
+
+export async function createPaymentLink(data: PaymentLinkData): Promise<PaymentLinkResponse> {
+  if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
+    throw new Error('Razorpay credentials not configured');
+  }
   const auth = Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString('base64');
 
   const response = await fetch('https://api.razorpay.com/v1/payment_links', {
@@ -45,7 +53,7 @@ export async function createPaymentLink(data: PaymentLinkData): Promise<any> {
     throw new Error(`Failed to create payment link: ${error}`);
   }
 
-  return await response.json();
+  return paymentLinkResponseSchema.parse(await response.json());
 }
 
 export function verifyWebhookSignature(
@@ -53,6 +61,9 @@ export function verifyWebhookSignature(
   signature: string,
   secret: string = RAZORPAY_WEBHOOK_SECRET
 ): boolean {
+  if (!secret) {
+    throw new Error('Razorpay webhook secret not configured');
+  }
   const expectedSignature = crypto
     .createHmac('sha256', secret)
     .update(webhookBody)

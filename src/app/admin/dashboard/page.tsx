@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { auth } from '@/lib/auth';
+import { auth, isAdminRole } from '@/lib/auth';
 import { db } from '@/db';
 import { registrations, payments } from '@/db/schema';
 import { eq, and, count, sql } from 'drizzle-orm';
@@ -52,7 +52,7 @@ async function getDashboardStats() {
 export default async function AdminDashboard() {
   const session = await auth();
 
-  if (!session) {
+  if (!session || !isAdminRole(session.user.role)) {
     redirect('/admin/login');
   }
 

@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { auth } from '@/lib/auth';
+import { auth, isAdminRole } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,7 +10,7 @@ import Link from 'next/link';
 export default async function AdminSettingsPage() {
   const session = await auth();
 
-  if (!session) {
+  if (!session || !isAdminRole(session.user.role)) {
     redirect('/admin/login');
   }
 

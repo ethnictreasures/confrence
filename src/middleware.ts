@@ -1,17 +1,18 @@
-import { auth } from '@/lib/auth';
+import { auth, isAdminRole } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 
 export default auth((req) => {
   const isAdminRoute = req.nextUrl.pathname.startsWith('/admin');
   const isLoginPage = req.nextUrl.pathname === '/admin/login';
+  const hasAdminRole = isAdminRole(req.auth?.user?.role);
 
   if (isAdminRoute && !isLoginPage) {
-    if (!req.auth) {
+    if (!hasAdminRole) {
       return NextResponse.redirect(new URL('/admin/login', req.url));
     }
   }
 
-  if (isLoginPage && req.auth) {
+  if (isLoginPage && hasAdminRole) {
     return NextResponse.redirect(new URL('/admin/dashboard', req.url));
   }
 

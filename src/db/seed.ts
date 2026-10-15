@@ -5,10 +5,10 @@ import bcrypt from 'bcryptjs';
 async function seed() {
   console.log('Seeding database...');
 
-  const passwordHash = await bcrypt.hash('admin123', 10);
+  const passwordHash = await bcrypt.hash('SecretPassword123!', 10);
 
   await db.insert(admins).values({
-    email: 'admin@techconference2025.com',
+    email: 'admin@techconference2026.com',
     name: 'Conference Admin',
     passwordHash,
     role: 'super_admin',

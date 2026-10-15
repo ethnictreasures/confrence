@@ -27,6 +27,7 @@ export const registrations = pgTable('registrations', {
   // Other participant fields
   participantCategory: varchar('participant_category', { length: 100 }),
   occupation: varchar('occupation', { length: 255 }),
+  organizationName: varchar('organization_name', { length: 255 }),
   purposeOfAttending: text('purpose_of_attending'),
   
   // Document fields
@@ -83,12 +84,14 @@ export const payments = pgTable('payments', {
   webhookEventIdIdx: index('idx_payments_webhook_event_id').on(table.webhookEventId),
 }));
 
+export type AdminRole = 'admin' | 'super_admin';
+
 export const admins = pgTable('admins', {
   id: uuid('id').primaryKey().defaultRandom(),
   email: varchar('email', { length: 255 }).notNull().unique(),
   name: varchar('name', { length: 255 }).notNull(),
   passwordHash: varchar('password_hash', { length: 255 }).notNull(),
-  role: varchar('role', { length: 50 }).default('admin').$type<'admin' | 'super_admin'>(),
+  role: varchar('role', { length: 50 }).default('admin').$type<AdminRole>(),
   isActive: boolean('is_active').default(true),
   lastLoginAt: timestamp('last_login_at'),
   createdAt: timestamp('created_at').defaultNow(),

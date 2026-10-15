@@ -3,6 +3,8 @@ import { db } from '@/db';
 import { registrations } from '@/db/schema';
 import { industryRegistrationSchema } from '@/lib/validation';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -14,7 +16,7 @@ export async function POST(request: NextRequest) {
     const [registration] = await db
       .insert(registrations)
       .values({
-        registrationNumber,
+        registrationNumber: registrationNumber,
         registrationType: 'industry_professional',
         fullName: validatedData.fullName,
         email: validatedData.email,
@@ -26,14 +28,14 @@ export async function POST(request: NextRequest) {
         industryType: validatedData.industryType,
         department: validatedData.department,
         yearsOfExperience: validatedData.yearsOfExperience,
-        documentObjectKey: validatedData.documentObjectKey,
-        documentOriginalName: validatedData.documentOriginalName,
-        documentMimeType: validatedData.documentMimeType,
-        documentSize: validatedData.documentSize,
-        additionalInfo: validatedData.additionalInfo,
+        documentObjectKey: validatedData.documentObjectKey || null,
+        documentOriginalName: validatedData.documentOriginalName || null,
+        documentMimeType: validatedData.documentMimeType || null,
+        documentSize: validatedData.documentSize || null,
+        additionalInfo: validatedData.additionalInfo || null,
         consentPrivacy: validatedData.consentPrivacy,
         consentTerms: validatedData.consentTerms,
-        paymentAmount: 3000,
+        paymentAmount: '3000',
         currency: 'INR',
         verificationStatus: 'pending',
         paymentStatus: 'pending',
