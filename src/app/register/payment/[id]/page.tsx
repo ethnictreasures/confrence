@@ -79,29 +79,29 @@ export default async function PaymentPage({ params }: PageProps) {
 
           <div className="mt-8 space-y-4 border-y border-slate-200 py-5">
             <div className="flex justify-between gap-4">
-              <span className="text-slate-600">Registration number</span>
-              <span className="text-right font-medium">
+              <span className="text-slate-600 ">Registration number</span>
+              <span className="text-right font-medium text-blue-800">
                 {registration.registrationNumber}
               </span>
             </div>
 
             <div className="flex justify-between gap-4">
               <span className="text-slate-600">Name</span>
-              <span className="text-right font-medium">
+              <span className="text-right font-medium text-blue-900 break-all">
                 {registration.fullName}
               </span>
             </div>
 
             <div className="flex justify-between gap-4">
               <span className="text-slate-600">Email</span>
-              <span className="break-all text-right font-medium">
+              <span className="break-all text-right font-medium text-blue-900">
                 {registration.email}
               </span>
             </div>
 
             <div className="flex justify-between gap-4">
               <span className="text-slate-600">Registration type</span>
-              <span className="text-right font-medium">
+              <span className="text-right font-medium text-blue-900">
                 {registration.registrationType === 'student'
                   ? 'Student'
                   : registration.registrationType ===
@@ -113,7 +113,7 @@ export default async function PaymentPage({ params }: PageProps) {
 
             <div className="flex justify-between gap-4">
               <span className="text-slate-600">Registration fee</span>
-              <span className="font-medium">
+              <span className="font-medium text-blue-900">
                 {formatINR(Number(registration.baseFeePaise))}
               </span>
             </div>
@@ -122,7 +122,7 @@ export default async function PaymentPage({ params }: PageProps) {
               <span className="text-slate-600">
                 GST ({Number(registration.gstRate)}%)
               </span>
-              <span className="font-medium">
+              <span className="font-medium text-blue-900">
                 {formatINR(Number(registration.gstAmountPaise))}
               </span>
             </div>
