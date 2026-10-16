@@ -145,24 +145,24 @@ export default async function AdminRegistrationsPage({
               <label className="relative lg:col-span-2">
                 <span className="sr-only">Search registrations</span>
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input name="search" placeholder="Name, email, phone, registration #" className="pl-10" defaultValue={filters.search} />
+                <Input name="search" placeholder="Name, email, phone, registration #" className="pl-10 text-slate-700" defaultValue={filters.search} />
               </label>
               <label className="sr-only" htmlFor="filter-type">Category</label>
-              <select id="filter-type" name="type" defaultValue={filters.type ?? ''} className="h-10 rounded-md border border-gray-300 bg-white px-3 text-sm">
-                <option value="">All categories</option><option value="student">Student</option><option value="industry_professional">Industry Professional</option><option value="other">Historical Other</option>
+              <select id="filter-type" name="type" defaultValue={filters.type ?? ''} className="h-10 rounded-md border border-gray-300 bg-white px-3 text-sm text-black">
+                <option value="" className='text-black'>All categories</option><option value="student">Student</option><option value="industry_professional">Industry Professional</option><option value="other">Historical Other</option>
               </select>
               <label className="sr-only" htmlFor="filter-payment">Payment status</label>
-              <select id="filter-payment" name="paymentStatus" defaultValue={filters.paymentStatus ?? ''} className="h-10 rounded-md border border-gray-300 bg-white px-3 text-sm">
+              <select id="filter-payment" name="paymentStatus" defaultValue={filters.paymentStatus ?? ''} className="h-10 rounded-md border border-gray-300 bg-white px-3 text-sm text-black">
                 <option value="">All payment statuses</option><option value="pending">Pending</option><option value="paid">Paid</option><option value="partially_paid">Partially Paid</option><option value="failed">Failed</option><option value="expired">Expired</option><option value="cancelled">Cancelled</option><option value="partially_refunded">Partially Refunded</option><option value="refunded">Refunded</option><option value="requires_reconciliation">Requires Reconciliation</option>
               </select>
               <label className="sr-only" htmlFor="filter-verification">Verification status</label>
-              <select id="filter-verification" name="verificationStatus" defaultValue={filters.verificationStatus ?? ''} className="h-10 rounded-md border border-gray-300 bg-white px-3 text-sm">
+              <select id="filter-verification" name="verificationStatus" defaultValue={filters.verificationStatus ?? ''} className="h-10 rounded-md border border-gray-300 bg-white px-3 text-sm text-black">
                 <option value="">All verification statuses</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="additional_info_required">Additional info required</option>
               </select>
               <label className="sr-only" htmlFor="filter-from">Registration date from</label>
-              <Input id="filter-from" type="date" name="dateFrom" defaultValue={filters.dateFrom} aria-label="Registration date from" />
+              <Input id="filter-from" type="date" name="dateFrom" defaultValue={filters.dateFrom} aria-label="Registration date from" className="text-black" />
               <label className="sr-only" htmlFor="filter-to">Registration date to</label>
-              <Input id="filter-to" type="date" name="dateTo" defaultValue={filters.dateTo} aria-label="Registration date to" />
+              <Input id="filter-to" type="date" name="dateTo" defaultValue={filters.dateTo} aria-label="Registration date to" className='text-black'/>
               <Button type="submit" variant="outline" className="lg:col-span-6"><Filter className="mr-2 h-4 w-4" />Apply filters</Button>
             </form>
 
@@ -170,34 +170,34 @@ export default async function AdminRegistrationsPage({
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-200">
-                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Reg #</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Name</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Email</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Type</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Organization</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Date</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Verification</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Payment</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Base fee</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">GST</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Total</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Payment reference</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Actions</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-black">Reg #</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-black">Name</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-black">Email</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-black">Type</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-black">Organization</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-black">Date</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-black">Verification</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-black">Payment</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-black">Base fee</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-black">GST</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-black">Total</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-black">Payment reference</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-black">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {registrations.map((registration) => (
                     <tr key={registration.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-3 px-4 text-sm font-medium">{registration.registrationNumber}</td>
-                      <td className="py-3 px-4 text-sm">{registration.fullName}</td>
-                      <td className="py-3 px-4 text-sm">{registration.email}</td>
-                      <td className="py-3 px-4 text-sm capitalize">
+                      <td className="py-3 px-4 text-sm font-medium text-blue-800">{registration.registrationNumber}</td>
+                      <td className="py-3 px-4 text-sm text-black">{registration.fullName}</td>
+                      <td className="py-3 px-4 text-sm text-black">{registration.email}</td>
+                      <td className="py-3 px-4 text-sm capitalize text-black">
                         {registration.registrationType.replace('_', ' ')}
                       </td>
-                      <td className="py-3 px-4 text-sm">
+                      <td className="py-3 px-4 text-sm text-black">
                         {registration.collegeName || registration.companyName || registration.organizationName || '-'}
                       </td>
-                      <td className="py-3 px-4 text-sm">
+                      <td className="py-3 px-4 text-sm text-black">
                         {registration.createdAt ? new Date(registration.createdAt).toLocaleDateString() : '-'}
                       </td>
                       <td className="py-3 px-4">
@@ -220,13 +220,13 @@ export default async function AdminRegistrationsPage({
                           {registration.paymentStatus.replaceAll('_', ' ')}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-sm">{registration.baseFeePaise === null ? '-' : `₹${(registration.baseFeePaise / 100).toLocaleString('en-IN')}`}</td>
-                      <td className="py-3 px-4 text-sm">{registration.gstAmountPaise === null ? '-' : `₹${(registration.gstAmountPaise / 100).toLocaleString('en-IN')}`}</td>
-                      <td className="py-3 px-4 text-sm font-medium">{registration.totalAmountPaise === null ? (registration.paymentAmount ? `₹${Number(registration.paymentAmount).toLocaleString('en-IN')}` : '-') : `₹${(registration.totalAmountPaise / 100).toLocaleString('en-IN')}`}</td>
-                      <td className="py-3 px-4 text-xs font-mono">{registration.razorpayPaymentId || '-'}</td>
+                      <td className="py-3 px-4 text-sm text-black">{registration.baseFeePaise === null ? '-' : `₹${(registration.baseFeePaise / 100).toLocaleString('en-IN')}`}</td>
+                      <td className="py-3 px-4 text-sm text-black">{registration.gstAmountPaise === null ? '-' : `₹${(registration.gstAmountPaise / 100).toLocaleString('en-IN')}`}</td>
+                      <td className="py-3 px-4 text-sm font-medium text-green-600">{registration.totalAmountPaise === null ? (registration.paymentAmount ? `₹${Number(registration.paymentAmount).toLocaleString('en-IN')}` : '-') : `₹${(registration.totalAmountPaise / 100).toLocaleString('en-IN')}`}</td>
+                      <td className="py-3 px-4 text-xs font-mono text-black">{registration.razorpayPaymentId || '-'}</td>
                       <td className="py-3 px-4">
                         <Link href={`/admin/registrations/${registration.id}`}>
-                          <Button variant="ghost" size="sm">
+                          <Button className="bg-blue-600 hover:bg-blue-700 text-white" variant="ghost" size="sm">
                             View
                           </Button>
                         </Link>

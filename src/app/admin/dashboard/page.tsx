@@ -170,7 +170,7 @@ export default async function AdminDashboard() {
                 </button>
               </Link>
               <Link href="/admin/settings">
-                <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-slate-700">
                   Settings
                 </button>
               </Link>

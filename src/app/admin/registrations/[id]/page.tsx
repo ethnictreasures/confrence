@@ -133,29 +133,29 @@ export default async function RegistrationDetailPage({
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label className="text-sm text-gray-600">Full Name</Label>
-                    <p className="font-medium">{registration.fullName}</p>
+                    <p className="font-medium text-blue-600">{registration.fullName}</p>
                   </div>
                   <div>
                     <Label className="text-sm text-gray-600">Email</Label>
-                    <p className="font-medium">{registration.email}</p>
+                    <p className="font-medium text-blue-600">{registration.email}</p>
                   </div>
                   <div>
                     <Label className="text-sm text-gray-600">Phone</Label>
-                    <p className="font-medium">{registration.phone}</p>
+                    <p className="font-medium text-blue-600">{registration.phone}</p>
                   </div>
                   <div>
                     <Label className="text-sm text-gray-600">Registration Type</Label>
-                    <p className="font-medium capitalize">
+                    <p className="font-medium capitalize text-blue-600">
                       {registration.registrationType.replace('_', ' ')}
                     </p>
                   </div>
                   <div>
                     <Label className="text-sm text-gray-600">Country</Label>
-                    <p className="font-medium">{registration.country}</p>
+                    <p className="font-medium text-blue-600">{registration.country}</p>
                   </div>
                   <div>
                     <Label className="text-sm text-gray-600">State</Label>
-                    <p className="font-medium">{registration.state}</p>
+                    <p className="font-medium text-blue-600">{registration.state}</p>
                   </div>
                 </div>
 
@@ -165,23 +165,23 @@ export default async function RegistrationDetailPage({
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label className="text-sm text-gray-600">College/University</Label>
-                        <p className="font-medium">{registration.collegeName}</p>
+                        <p className="font-medium text-blue-600">{registration.collegeName}</p>
                       </div>
                       <div>
                         <Label className="text-sm text-gray-600">Degree Program</Label>
-                        <p className="font-medium">{registration.degreeProgram}</p>
+                        <p className="font-medium text-blue-600">{registration.degreeProgram}</p>
                       </div>
                       <div>
                         <Label className="text-sm text-gray-600">Department</Label>
-                        <p className="font-medium">{registration.department}</p>
+                        <p className="font-medium text-blue-600">{registration.department}</p>
                       </div>
                       <div>
                         <Label className="text-sm text-gray-600">Current Year</Label>
-                        <p className="font-medium">{registration.currentYear}</p>
+                        <p className="font-medium text-blue-600">{registration.currentYear}</p>
                       </div>
                       <div>
                         <Label className="text-sm text-gray-600">Expected Graduation</Label>
-                        <p className="font-medium">{registration.expectedGraduationYear}</p>
+                        <p className="font-medium text-blue-600">{registration.expectedGraduationYear}</p>
                       </div>
                     </div>
                   </div>
@@ -193,23 +193,23 @@ export default async function RegistrationDetailPage({
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label className="text-sm text-gray-600">Job Title</Label>
-                        <p className="font-medium">{registration.jobTitle}</p>
+                        <p className="font-medium text-blue-600">{registration.jobTitle}</p>
                       </div>
                       <div>
                         <Label className="text-sm text-gray-600">Company</Label>
-                        <p className="font-medium">{registration.companyName}</p>
+                        <p className="font-medium text-blue-600">{registration.companyName}</p>
                       </div>
                       <div>
                         <Label className="text-sm text-gray-600">Industry Type</Label>
-                        <p className="font-medium">{registration.industryType}</p>
+                        <p className="font-medium text-blue-600">{registration.industryType}</p>
                       </div>
                       <div>
                         <Label className="text-sm text-gray-600">Department</Label>
-                        <p className="font-medium">{registration.department}</p>
+                        <p className="font-medium text-blue-600">{registration.department}</p>
                       </div>
                       <div>
                         <Label className="text-sm text-gray-600">Years of Experience</Label>
-                        <p className="font-medium">{registration.yearsOfExperience}</p>
+                        <p className="font-medium text-blue-600">{registration.yearsOfExperience}</p>
                       </div>
                     </div>
                   </div>
@@ -221,20 +221,20 @@ export default async function RegistrationDetailPage({
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label className="text-sm text-gray-600">Category</Label>
-                        <p className="font-medium">{registration.participantCategory}</p>
+                        <p className="font-medium text-blue-600">{registration.participantCategory}</p>
                       </div>
                       <div>
                         <Label className="text-sm text-gray-600">Occupation</Label>
-                        <p className="font-medium">{registration.occupation}</p>
+                        <p className="font-medium text-blue-600">{registration.occupation}</p>
                       </div>
                       <div>
                         <Label className="text-sm text-gray-600">Organization</Label>
-                        <p className="font-medium">{registration.organizationName || '-'}</p>
+                        <p className="font-medium text-blue-600">{registration.organizationName || '-'}</p>
                       </div>
                     </div>
                     <div className="mt-4">
                       <Label className="text-sm text-gray-600">Purpose of Attending</Label>
-                      <p className="font-medium">{registration.purposeOfAttending}</p>
+                      <p className="font-medium text-blue-600">{registration.purposeOfAttending}</p>
                     </div>
                   </div>
                 )}
@@ -242,7 +242,7 @@ export default async function RegistrationDetailPage({
                 {registration.additionalInfo && (
                   <div className="border-t pt-4 mt-4">
                     <Label className="text-sm text-gray-600">Additional Information</Label>
-                    <p className="font-medium">{registration.additionalInfo}</p>
+                    <p className="font-medium text-blue-600">{registration.additionalInfo}</p>
                   </div>
                 )}
               </CardContent>
@@ -258,8 +258,8 @@ export default async function RegistrationDetailPage({
                     <div className="flex items-center gap-3">
                       <FileText className="w-8 h-8 text-gray-400" />
                       <div>
-                        <p className="font-medium">{registration.documentOriginalName}</p>
-                        <p className="text-sm text-gray-600">
+                        <p className="font-medium text-black">{registration.documentOriginalName}</p>
+                        <p className="text-sm text-gray-600 text-black overflow-hidden whitespace-nowrap max-w-[200px]">
                           {registration.documentMimeType} • {registration.documentSize ? (registration.documentSize / 1024).toFixed(2) : '0'} KB
                         </p>
                       </div>
@@ -286,28 +286,28 @@ export default async function RegistrationDetailPage({
               <CardContent className="space-y-3">
                 <div>
                   <Label className="text-sm text-gray-600">Base fee</Label>
-                  <p className="font-medium">{registration.baseFeePaise === null ? '-' : `₹${(registration.baseFeePaise / 100).toLocaleString('en-IN')}`}</p>
+                  <p className="font-medium text-blue-600">{registration.baseFeePaise === null ? '-' : `₹${(registration.baseFeePaise / 100).toLocaleString('en-IN')}`}</p>
                 </div>
                 <div>
                   <Label className="text-sm text-gray-600">GST ({registration.gstRate ?? 'N/A'}%)</Label>
-                  <p className="font-medium">{registration.gstAmountPaise === null ? '-' : `₹${(registration.gstAmountPaise / 100).toLocaleString('en-IN')}`}</p>
+                  <p className="font-medium text-blue-600">{registration.gstAmountPaise === null ? '-' : `₹${(registration.gstAmountPaise / 100).toLocaleString('en-IN')}`}</p>
                 </div>
                 <div>
                   <Label className="text-sm text-gray-600">Total payable</Label>
-                  <p className="font-semibold text-lg">{registration.totalAmountPaise === null ? (registration.paymentAmount ? `₹${Number(registration.paymentAmount).toLocaleString('en-IN')}` : '-') : `₹${(registration.totalAmountPaise / 100).toLocaleString('en-IN')}`}</p>
+                  <p className="font-semibold text-lg text-blue-600">{registration.totalAmountPaise === null ? (registration.paymentAmount ? `₹${Number(registration.paymentAmount).toLocaleString('en-IN')}` : '-') : `₹${(registration.totalAmountPaise / 100).toLocaleString('en-IN')}`}</p>
                 </div>
                 <div>
                   <Label className="text-sm text-gray-600">Amount received</Label>
-                  <p className="font-medium">₹{(registration.amountPaidPaise / 100).toLocaleString('en-IN')}</p>
+                  <p className="font-medium text-blue-600">₹{(registration.amountPaidPaise / 100).toLocaleString('en-IN')}</p>
                 </div>
                 <div>
                   <Label className="text-sm text-gray-600">Reconciliation</Label>
-                  <p className="font-medium capitalize">{registration.paymentReconciliationStatus.replaceAll('_', ' ')}</p>
+                  <p className="font-medium capitalize text-blue-600">{registration.paymentReconciliationStatus.replaceAll('_', ' ')}</p>
                 </div>
                 <div>
                   <Label className="text-sm text-gray-600">Payment Status</Label>
                   <span
-                    className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(
+                    className={`inline-block text-blue-600 px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(
                       registration.paymentStatus,
                       'payment'
                     )}`}
@@ -317,11 +317,11 @@ export default async function RegistrationDetailPage({
                 </div>
                 <div>
                   <Label className="text-sm text-gray-600">Payment ID</Label>
-                  <p className="font-medium">{registration.razorpayPaymentId || '-'}</p>
+                  <p className="font-medium text-blue-600">{registration.razorpayPaymentId || '-'}</p>
                 </div>
                 <div>
                   <Label className="text-sm text-gray-600">Payment Link ID</Label>
-                  <p className="font-medium">{registration.paymentLinkId || '-'}</p>
+                  <p className="font-medium text-blue-600"/>{registration.paymentLinkId || '-'}
                 </div>
               </CardContent>
             </Card>
@@ -330,7 +330,7 @@ export default async function RegistrationDetailPage({
               <CardHeader>
                 <CardTitle>Verification Actions</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-3 text-blue-600">
                 <VerificationActions registrationId={registration.id} currentStatus={registration.verificationStatus} />
               </CardContent>
             </Card>
@@ -342,17 +342,17 @@ export default async function RegistrationDetailPage({
               <CardContent className="space-y-3 text-sm">
                 <div>
                   <Label className="text-gray-600">Registration Number</Label>
-                  <p className="font-medium">{registration.registrationNumber}</p>
+                  <p className="font-medium text-blue-600">{registration.registrationNumber}</p>
                 </div>
                 <div>
                   <Label className="text-gray-600">Registered On</Label>
-                  <p className="font-medium">
+                  <p className="font-medium text-blue-600">
                     {registration.createdAt ? new Date(registration.createdAt).toLocaleString() : '-'}
                   </p>
                 </div>
                 <div>
                   <Label className="text-gray-600">Last Updated</Label>
-                  <p className="font-medium">
+                  <p className="font-medium text-blue-600">
                     {registration.updatedAt ? new Date(registration.updatedAt).toLocaleString() : '-'}
                   </p>
                 </div>
@@ -368,7 +368,7 @@ export default async function RegistrationDetailPage({
                   <div className="space-y-3">
                     {auditLogs.map((log) => (
                       <div key={log.id} className="text-sm border-b pb-2 last:border-0">
-                        <p className="font-medium">{log.action}</p>
+                        <p className="font-medium text-blue-600">{log.action}</p>
                         <p className="text-gray-600 text-xs">
                           {log.createdAt ? new Date(log.createdAt).toLocaleString() : '-'}
                         </p>

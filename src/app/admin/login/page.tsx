@@ -73,6 +73,7 @@ export default function AdminLoginPage() {
                   name="email"
                   type="email"
                   placeholder="admin@example.com"
+                  className="text-slate-900"
                   required
                   disabled={isLoading}
                 />
@@ -85,6 +86,7 @@ export default function AdminLoginPage() {
                   name="password"
                   type="password"
                   placeholder="••••••••"
+                  className="text-slate-900"
                   required
                   disabled={isLoading}
                 />

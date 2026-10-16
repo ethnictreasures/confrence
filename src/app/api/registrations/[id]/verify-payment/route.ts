@@ -243,7 +243,7 @@ export async function POST(
       orderId: savedOrderId,
       amountPaise: payment.amount,
       currency: payment.currency,
-      message: 'Payment verified successfully.',
+      message: 'Payment verified successfully. you will receive the confirmation email shortly.',
     });
   } catch (error) {
     console.error('[Payment verification] Failed:', error);
