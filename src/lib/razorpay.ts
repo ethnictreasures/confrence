@@ -1,14 +1,14 @@
+
 import crypto from 'crypto';
 import { z } from 'zod';
 import { REGISTRATION_PRICING, type NewRegistrationType } from '@/config/conference';
 
-const paymentLinkSchema = z.object({
+const razorpayOrderSchema = z.object({
   id: z.string(),
-  short_url: z.string().url(),
-  status: z.string(),
-  amount: z.number().int(),
+  amount: z.number().int().positive(),
   currency: z.string(),
-  accept_partial: z.boolean(),
+  status: z.string(),
+  receipt: z.string().nullable().optional(),
 });
 
 const razorpayPaymentSchema = z.object({
@@ -22,78 +22,213 @@ const razorpayPaymentSchema = z.object({
   order_id: z.string().nullable().optional(),
 });
 
-export type VerifiedRazorpayPayment = z.infer<typeof razorpayPaymentSchema>;
+export type VerifiedRazorpayPayment = z.infer<
+  typeof razorpayPaymentSchema
+>;
 
-const paymentLinkConfiguration = {
-  student: {
-    id: 'STUDENT_RAZORPAY_PAYMENT_LINK_ID',
-    url: 'STUDENT_RAZORPAY_PAYMENT_LINK_URL',
-  },
-  industry_professional: {
-    id: 'PROFESSIONAL_RAZORPAY_PAYMENT_LINK_ID',
-    url: 'PROFESSIONAL_RAZORPAY_PAYMENT_LINK_URL',
-  },
-} satisfies Record<NewRegistrationType, { id: string; url: string }>;
+export type RazorpayOrder = z.infer<typeof razorpayOrderSchema>;
 
-export function configuredPaymentLinkId(type: NewRegistrationType): string | null {
-  const { id } = paymentLinkConfiguration[type];
-  return process.env[id] || null;
+export interface CreateRazorpayOrderInput {
+  registrationId: string;
+  registrationNumber: string;
+  registrationType: NewRegistrationType;
 }
 
-export async function getVerifiedPaymentLink(type: NewRegistrationType): Promise<string | null> {
-  const { id: idVariable, url: urlVariable } = paymentLinkConfiguration[type];
-  const paymentLinkId = process.env[idVariable];
-  const configuredUrl = process.env[urlVariable];
-  const keyId = process.env.RAZORPAY_KEY_ID;
-  const keySecret = process.env.RAZORPAY_KEY_SECRET;
-  if (!paymentLinkId || !configuredUrl || !keyId || !keySecret) return null;
+function getRazorpayCredentials() {
+  const keyId = process.env.RAZORPAY_KEY_ID?.trim();
+  const keySecret = process.env.RAZORPAY_KEY_SECRET?.trim();
 
-  const credentials = Buffer.from(`${keyId}:${keySecret}`).toString('base64');
-  const response = await fetch(`https://api.razorpay.com/v1/payment_links/${encodeURIComponent(paymentLinkId)}`, {
-    headers: { Authorization: `Basic ${credentials}` },
-    cache: 'no-store',
-  });
-  if (!response.ok) return null;
+  if (!keyId || !keySecret) {
+    throw new Error('Razorpay API credentials are not configured.');
+  }
 
-  const paymentLink = paymentLinkSchema.safeParse(await response.json());
-  if (!paymentLink.success) return null;
+  return {
+    keyId,
+    authorization:
+      'Basic ' +
+      Buffer.from(`${keyId}:${keySecret}`).toString('base64'),
+  };
+}
 
-  const expectedAmount = REGISTRATION_PRICING[type].totalAmountPaise;
-  const blockedStatuses = new Set(['expired', 'cancelled']);
+/**
+ * Creates a Razorpay Order for a registration.
+ *
+ * Call this only from a server-side API route after loading the
+ * registration from your database and confirming its payment is pending.
+ *
+ * Important: persist the returned order ID against the registration.
+ */
+export async function createRazorpayOrder(
+  input: CreateRazorpayOrderInput
+): Promise<RazorpayOrder> {
+  const { authorization } = getRazorpayCredentials();
+
+  // Always calculate the amount from server-side pricing configuration.
+  const pricing = REGISTRATION_PRICING[input.registrationType];
+  const amount = pricing.totalAmountPaise;
+
+  if (!Number.isSafeInteger(amount) || amount <= 0) {
+    throw new Error('Invalid registration payment amount.');
+  }
+
+  const response = await fetch(
+    'https://api.razorpay.com/v1/orders',
+    {
+      method: 'POST',
+      headers: {
+        Authorization: authorization,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        amount,
+        currency: 'INR',
+        receipt: input.registrationNumber,
+        notes: {
+          registration_id: input.registrationId,
+          registration_number: input.registrationNumber,
+          registration_type: input.registrationType,
+        },
+      }),
+      cache: 'no-store',
+    }
+  );
+
+  if (!response.ok) {
+    const errorBody = await response.text().catch(() => '');
+
+    console.error('[Razorpay] Order creation failed:', {
+      status: response.status,
+      response: errorBody.slice(0, 500),
+    });
+
+    throw new Error('Unable to create Razorpay order.');
+  }
+
+  const parsed = razorpayOrderSchema.safeParse(await response.json());
+
+  if (!parsed.success) {
+    throw new Error('Razorpay returned an invalid order response.');
+  }
+
+  const order = parsed.data;
+
   if (
-    paymentLink.data.id !== paymentLinkId ||
-    paymentLink.data.short_url !== configuredUrl ||
-    paymentLink.data.amount !== expectedAmount ||
-    paymentLink.data.currency !== 'INR' ||
-    paymentLink.data.accept_partial ||
-    blockedStatuses.has(paymentLink.data.status)
-  ) return null;
+    order.amount !== amount ||
+    order.currency !== 'INR' ||
+    order.status !== 'created'
+  ) {
+    throw new Error('Razorpay order validation failed.');
+  }
 
-  return paymentLink.data.short_url;
+  return order;
 }
 
-export async function fetchRazorpayPayment(paymentId: string): Promise<VerifiedRazorpayPayment | null> {
-  const keyId = process.env.RAZORPAY_KEY_ID;
-  const keySecret = process.env.RAZORPAY_KEY_SECRET;
-  if (!keyId || !keySecret) return null;
+/**
+ * Fetches an order directly from Razorpay.
+ */
+export async function fetchRazorpayOrder(
+  orderId: string
+): Promise<RazorpayOrder | null> {
+  const { authorization } = getRazorpayCredentials();
 
-  const credentials = Buffer.from(`${keyId}:${keySecret}`).toString('base64');
-  const response = await fetch(`https://api.razorpay.com/v1/payments/${encodeURIComponent(paymentId)}`, {
-    headers: { Authorization: `Basic ${credentials}` },
-    cache: 'no-store',
-  });
+  const response = await fetch(
+    `https://api.razorpay.com/v1/orders/${encodeURIComponent(orderId)}`,
+    {
+      headers: { Authorization: authorization },
+      cache: 'no-store',
+    }
+  );
+
   if (!response.ok) return null;
 
-  const payment = razorpayPaymentSchema.safeParse(await response.json());
-  return payment.success && payment.data.id === paymentId ? payment.data : null;
+  const parsed = razorpayOrderSchema.safeParse(await response.json());
+
+  return parsed.success && parsed.data.id === orderId
+    ? parsed.data
+    : null;
 }
 
+/**
+ * Fetches an individual payment directly from Razorpay.
+ */
+export async function fetchRazorpayPayment(
+  paymentId: string
+): Promise<VerifiedRazorpayPayment | null> {
+  const { authorization } = getRazorpayCredentials();
+
+  const response = await fetch(
+    `https://api.razorpay.com/v1/payments/${encodeURIComponent(paymentId)}`,
+    {
+      headers: { Authorization: authorization },
+      cache: 'no-store',
+    }
+  );
+
+  if (!response.ok) return null;
+
+  let data: unknown;
+
+  try {
+    data = await response.json();
+  } catch {
+    return null;
+  }
+
+  const parsed = razorpayPaymentSchema.safeParse(data);
+
+  return parsed.success && parsed.data.id === paymentId
+    ? parsed.data
+    : null;
+}
+
+/**
+ * Verifies the signature returned by Razorpay Checkout.
+ *
+ * The order ID must be the server-created order ID stored for this
+ * registration. Never accept an arbitrary order ID supplied by a client.
+ */
+export function verifyCheckoutSignature(
+  orderId: string,
+  paymentId: string,
+  signature: string
+): boolean {
+  const secret = process.env.RAZORPAY_KEY_SECRET;
+
+  if (!secret || !orderId || !paymentId || !signature) {
+    return false;
+  }
+
+  if (!/^[a-f\d]{64}$/i.test(signature)) {
+    return false;
+  }
+
+  const expectedSignature = crypto
+    .createHmac('sha256', secret)
+    .update(`${orderId}|${paymentId}`)
+    .digest('hex');
+
+  const expected = Buffer.from(expectedSignature, 'hex');
+  const supplied = Buffer.from(signature, 'hex');
+
+  return (
+    expected.length === supplied.length &&
+    crypto.timingSafeEqual(expected, supplied)
+  );
+}
+
+/**
+ * Verifies a Razorpay webhook using the raw request body.
+ * Do not parse and re-serialize the body before verifying its signature.
+ */
 export function verifyWebhookSignature(
   webhookBody: string,
   signature: string,
   secret: string | undefined = process.env.RAZORPAY_WEBHOOK_SECRET
 ): boolean {
-  if (!secret || !/^[a-f\d]{64}$/i.test(signature)) return false;
+  if (!secret || !/^[a-f\d]{64}$/i.test(signature)) {
+    return false;
+  }
+
   const expectedSignature = crypto
     .createHmac('sha256', secret)
     .update(webhookBody)
@@ -101,5 +236,9 @@ export function verifyWebhookSignature(
 
   const expected = Buffer.from(expectedSignature, 'hex');
   const supplied = Buffer.from(signature, 'hex');
-  return expected.length === supplied.length && crypto.timingSafeEqual(expected, supplied);
+
+  return (
+    expected.length === supplied.length &&
+    crypto.timingSafeEqual(expected, supplied)
+  );
 }

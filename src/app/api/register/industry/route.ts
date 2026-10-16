@@ -4,7 +4,6 @@ import { db } from '@/db';
 import { registrations } from '@/db/schema';
 import { industryRegistrationApiSchema } from '@/lib/validation';
 import { REGISTRATION_PRICING } from '@/config/conference';
-import { configuredPaymentLinkId } from '@/lib/razorpay';
 import { validateUploadedDocument } from '@/lib/r2';
 
 export const dynamic = 'force-dynamic';
@@ -51,7 +50,6 @@ export async function POST(request: NextRequest) {
         verificationStatus: 'pending',
         paymentStatus: 'pending',
         paymentReconciliationStatus: 'pending',
-        paymentLinkId: configuredPaymentLinkId('industry_professional'),
       })
       .returning();
 

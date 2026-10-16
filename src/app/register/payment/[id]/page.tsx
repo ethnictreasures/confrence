@@ -1,165 +1,175 @@
+
 import { notFound } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, ExternalLink } from 'lucide-react';
-import Link from 'next/link';
-import { getVerifiedPaymentLink } from '@/lib/razorpay';
-import type { NewRegistrationType } from '@/config/conference';
+import { eq } from 'drizzle-orm';
 
-async function getRegistration(id: string) {
-  try {
-    const { db } = await import('@/db');
-    const { registrations } = await import('@/db/schema');
-    const { eq } = await import('drizzle-orm');
+import { db } from '@/db';
+import { registrations } from '@/db/schema';
+import RazorpayCheckoutButton from './RazorpayCheckoutButton';
 
-    const [registration] = await db
-      .select()
-      .from(registrations)
-      .where(eq(registrations.id, id));
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
-    return registration;
-  } catch (error) {
-    console.error('Error fetching registration:', error);
-    return null;
-  }
+interface PageProps {
+  params: Promise<{ id: string }>;
 }
 
-export default async function PaymentPage({ params }: { params: Promise<{ id: string }> }) {
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function formatINR(amountPaise: number) {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 2,
+  }).format(amountPaise / 100);
+}
+
+export default async function PaymentPage({ params }: PageProps) {
   const { id } = await params;
-  const registration = await getRegistration(id);
+
+  if (!UUID_PATTERN.test(id)) {
+    notFound();
+  }
+
+  const [registration] = await db
+    .select()
+    .from(registrations)
+    .where(eq(registrations.id, id))
+    .limit(1);
 
   if (!registration) {
     notFound();
   }
 
-  const hasNewCategory = registration.registrationType === 'student' || registration.registrationType === 'industry_professional';
-  const paymentUrl = hasNewCategory && registration.paymentStatus !== 'paid' && registration.paymentStatus !== 'refunded'
-    ? await getVerifiedPaymentLink(registration.registrationType as NewRegistrationType)
-    : null;
-  const totalPaise = registration.totalAmountPaise;
-  const baseFeePaise = registration.baseFeePaise;
-  const gstAmountPaise = registration.gstAmountPaise;
-  const formatRupees = (paise: number) => `₹${(paise / 100).toLocaleString('en-IN')}`;
+  const supportedType =
+    registration.registrationType === 'student' ||
+    registration.registrationType === 'industry_professional';
+
+  const amountPaise = Number(registration.totalAmountPaise);
+
+  const isPaid = registration.paymentStatus === 'paid';
+
+  const isUnavailable =
+    ['cancelled', 'expired', 'refunded', 'partially_refunded'].includes(
+      registration.paymentStatus
+    );
+
+  const canPay =
+    supportedType &&
+    !isPaid &&
+    !isUnavailable &&
+    Number.isSafeInteger(amountPaise) &&
+    amountPaise > 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12">
-      <div className="container mx-auto px-4">
-        <div className="max-w-2xl mx-auto">
-          <Link href="/" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6">
-            ← Back to Home
-          </Link>
+    <main className="min-h-screen bg-slate-50 px-4 py-12">
+      <div className="mx-auto max-w-2xl">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <p className="text-sm font-semibold uppercase tracking-wider text-blue-700">
+            {/* JUST POLYMER SOLUTIONS */}
+          </p>
 
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                  <CheckCircle className="w-6 h-6 text-green-600" />
-                </div>
-                <div>
-                  <CardTitle>Registration Submitted Successfully</CardTitle>
-                  <CardDescription>
-                    Your registration has been received and is pending verification
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h3 className="font-semibold text-blue-900 mb-2">Registration Details</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Registration Number:</span>
-                    <span className="font-medium text-blue-900">{registration.registrationNumber}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Name:</span>
-                    <span className="font-medium text-blue-900">{registration.fullName}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Email:</span>
-                    <span className="font-medium text-blue-900">{registration.email}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Category:</span>
-                    <span className="font-medium capitalize text-blue-900">
-                      {registration.registrationType.replace('_', ' ')}
-                    </span>
-                  </div>
-                  {baseFeePaise !== null && gstAmountPaise !== null && totalPaise !== null ? (
-                    <>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Base Fee:</span>
-                        <span className="font-medium text-blue-900">{formatRupees(baseFeePaise)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">GST ({registration.gstRate}%):</span>
-                        <span className="font-medium text-blue-900">{formatRupees(gstAmountPaise)}</span>
-                      </div>
-                      <div className="flex justify-between border-t border-blue-200 pt-2">
-                        <span className="font-semibold text-gray-900">Total Payable:</span>
-                        <span className="font-semibold text-lg text-blue-900">{formatRupees(totalPaise)}</span>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Recorded Total:</span>
-                      <span className="font-semibold text-lg text-blue-900">{registration.paymentAmount ? `₹${Number(registration.paymentAmount).toLocaleString('en-IN')}` : 'Unavailable'}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
+          <h1 className="mt-3 text-2xl font-bold text-slate-900">
+            Conference Registration Payment
+          </h1>
 
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <h3 className="font-semibold text-yellow-900 mb-2">Next Steps</h3>
-                <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700">
-                  <li>Complete the payment using the link below</li>
-                  <li>Your document will be reviewed by our team</li>
-                  <li>You will receive confirmation once verified</li>
-                  <li>Attend the virtual programme on October 31 – November 1, 2026</li>
-                </ol>
-              </div>
+          <p className="mt-2 text-sm text-slate-600">
+            Conference dates: October 31 – November 1, 2026
+          </p>
 
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-2">Payment Information</h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  Click the button below to proceed to the secure payment gateway. You will be redirected to Razorpay to complete your payment.
-                </p>
-                {paymentUrl ? (
-                  <Button className="w-full" size="lg" asChild>
-                    <a href={paymentUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
-                      Proceed to Payment{totalPaise !== null ? ` · ${formatRupees(totalPaise)}` : ''}
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                  </Button>
-                ) : (
-                  <p role="status" className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
-                    Online payment is temporarily unavailable because the configured Razorpay Payment Link could not be verified. Your registration is saved; please contact the organizer.
-                  </p>
-                )}
-                <p className="text-xs text-gray-500 mt-2 text-center">
-                  After payment, return to this page to check your status
-                </p>
-              </div>
+          <div className="mt-8 space-y-4 border-y border-slate-200 py-5">
+            <div className="flex justify-between gap-4">
+              <span className="text-slate-600">Registration number</span>
+              <span className="text-right font-medium">
+                {registration.registrationNumber}
+              </span>
+            </div>
 
-              <div className="border-t pt-4">
-                <h3 className="font-semibold text-gray-900 mb-2">Check Payment Status</h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  After completing payment, click below to verify your payment status.
-                </p>
-                <Link href={`/register/confirm/${registration.id}`}>
-                  <Button variant="outline" className="w-full">
-                    Check Payment Status
-                  </Button>
-                </Link>
-              </div>
+            <div className="flex justify-between gap-4">
+              <span className="text-slate-600">Name</span>
+              <span className="text-right font-medium">
+                {registration.fullName}
+              </span>
+            </div>
 
-              <div className="text-center text-sm text-gray-500">
-                <p>For assistance, contact the conference organizer.</p>
-              </div>
-            </CardContent>
-          </Card>
+            <div className="flex justify-between gap-4">
+              <span className="text-slate-600">Email</span>
+              <span className="break-all text-right font-medium">
+                {registration.email}
+              </span>
+            </div>
+
+            <div className="flex justify-between gap-4">
+              <span className="text-slate-600">Registration type</span>
+              <span className="text-right font-medium">
+                {registration.registrationType === 'student'
+                  ? 'Student'
+                  : registration.registrationType ===
+                      'industry_professional'
+                    ? 'Industry Professional'
+                    : 'Other'}
+              </span>
+            </div>
+
+            <div className="flex justify-between gap-4">
+              <span className="text-slate-600">Registration fee</span>
+              <span className="font-medium">
+                {formatINR(Number(registration.baseFeePaise))}
+              </span>
+            </div>
+
+            <div className="flex justify-between gap-4">
+              <span className="text-slate-600">
+                GST ({Number(registration.gstRate)}%)
+              </span>
+              <span className="font-medium">
+                {formatINR(Number(registration.gstAmountPaise))}
+              </span>
+            </div>
+
+            <div className="flex justify-between gap-4 pt-2 text-lg">
+              <span className="font-semibold text-slate-900">
+                Total payable
+              </span>
+              <span className="font-bold text-slate-900">
+                {formatINR(amountPaise)}
+              </span>
+            </div>
+          </div>
+
+          <div className="mt-6">
+            {isPaid ? (
+              <p className="rounded-lg bg-green-50 p-4 text-sm font-medium text-green-800">
+                Payment has already been recorded for this registration.
+              </p>
+            ) : isUnavailable ? (
+              <p className="rounded-lg bg-amber-50 p-4 text-sm text-amber-800">
+                This registration cannot currently accept payment. Please contact the organizer.
+              </p>
+            ) : !supportedType ? (
+              <p className="rounded-lg bg-amber-50 p-4 text-sm text-amber-800">
+                Online payment is not available for this registration type.
+              </p>
+            ) : !canPay ? (
+              <p className="rounded-lg bg-red-50 p-4 text-sm text-red-800">
+                The payable amount is invalid. Please contact the organizer.
+              </p>
+            ) : (
+              <RazorpayCheckoutButton
+                registrationId={registration.id}
+                amountPaise={amountPaise}
+                fullName={registration.fullName}
+                email={registration.email}
+                phone={registration.phone}
+              />
+            )}
+          </div>
+
+          <p className="mt-5 text-center text-xs text-slate-500">
+            Your payment is confirmed only after server-side verification.
+          </p>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

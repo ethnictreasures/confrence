@@ -45,6 +45,7 @@ export const registrations = pgTable('registrations', {
   totalAmountPaise: integer('total_amount_paise'),
   currency: varchar('currency', { length: 3 }).default('INR'),
   paymentLinkId: varchar('payment_link_id', { length: 255 }),
+  razorpayOrderId: varchar('razorpay_order_id', { length: 255 }),
   razorpayPaymentId: varchar('razorpay_payment_id', { length: 255 }),
   paymentReconciliationStatus: varchar('payment_reconciliation_status', { length: 30 }).notNull().default('pending').$type<'pending' | 'matched' | 'requires_reconciliation'>(),
   amountPaidPaise: integer('amount_paid_paise').notNull().default(0),

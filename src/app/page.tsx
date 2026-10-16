@@ -40,7 +40,7 @@ export default function Home() {
         }
       `}</style>
 
-      <header className="border-b border-[#d4d7cf] bg-[#f7f7f3]">
+      {/* <header className="border-b border-[#d4d7cf] bg-[#f7f7f3]">
         <nav aria-label="Main navigation" className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8 lg:px-12">
           <Link href="#top" className="group flex min-w-0 items-center gap-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#a84e2b]">
             <span aria-hidden="true" className="grid h-10 w-10 shrink-0 place-items-center border border-[#171916] text-[11px] font-black leading-none tracking-[0.08em]">
@@ -55,10 +55,10 @@ export default function Home() {
             Admin <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
           </Link>
         </nav>
-      </header>
+      </header> */}
 
       <main id="top">
-        <section aria-labelledby="branding-heading" className="border-b border-[#d4d7cf] bg-[#e8eef5]">
+        {/* <section aria-labelledby="branding-heading" className="border-b border-[#d4d7cf] bg-[#e8eef5]">
           <h2 id="branding-heading" className="sr-only">JUST POLYMER SOLUTIONS Chem Petchem Education Drive branding</h2>
           <Image
             src="/img19.jpg"
@@ -68,59 +68,145 @@ export default function Home() {
             priority
             className="mx-auto h-auto w-full max-h-[min(56vh,560px)] object-contain object-center"
           />
-        </section>
+        </section> */}
 
-        <section aria-labelledby="conference-title" className="relative isolate border-b border-[#d4d7cf] bg-[#171916] text-[#f7f7f3]">
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-[0.08]" style={{ backgroundImage: 'linear-gradient(to right, #f7f7f3 1px, transparent 1px), linear-gradient(to bottom, #f7f7f3 1px, transparent 1px)', backgroundSize: '72px 72px' }} />
-          <div className="relative mx-auto grid max-w-7xl gap-12 px-5 pb-16 pt-12 sm:px-8 sm:pb-20 sm:pt-16 lg:grid-cols-[1.3fr_0.7fr] lg:items-end lg:px-12 lg:pb-24 lg:pt-20">
+        
+        <section
+          aria-labelledby="conference-title"
+          className="relative isolate overflow-hidden border-b border-[#d4d7cf] bg-[#171916] text-[#f7f7f3]"
+        >
+          {/* Background photograph */}
+          <Image
+            src="/img19.jpg"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="pointer-events-none -z-20 object-cover object-center"
+          />
+
+          {/* Dark overlay for text readability */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-r from-[#111410]/95 via-[#171916]/80 to-[#171916]/55"
+          />
+
+          {/* Subtle grid texture */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 -z-10 opacity-[0.10]"
+            style={{
+              backgroundImage:
+                'linear-gradient(to right, #f7f7f3 1px, transparent 1px), linear-gradient(to bottom, #f7f7f3 1px, transparent 1px)',
+              backgroundSize: '72px 72px',
+            }}
+          />
+
+          <div className="relative mx-auto max-w-7xl px-5 pb-14 pt-12 sm:px-8 sm:pb-20 sm:pt-16 lg:px-12 lg:pb-20 lg:pt-20">
+            {/* Full-width title allows the heading to use two lines */}
             <div className="page-arrive">
               <p className="mb-7 flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#d4db62] sm:text-xs">
                 <span className="h-px w-8 bg-[#d4db62]" />
                 Virtual Industry Programme
               </p>
-              <h1 id="conference-title" className="max-w-4xl text-[clamp(2.65rem,7.1vw,6.5rem)] font-semibold leading-[0.94] tracking-[-0.055em]">
-                {CONFERENCE.title.split(':')[0]}:
-                <span className="mt-2 block text-[#d4db62]">The Materials</span>
-                <span className="block">&amp; Mobility</span>
-                <span className="block">Revolution<span className="text-[#c46a44]">.</span></span>
+
+              <h1
+                id="conference-title"
+                className="max-w-none text-[clamp(2rem,5.1vw,4.8rem)] font-semibold leading-[1.02] tracking-[-0.055em]"
+              >
+                <span className="block">
+                  Automotive Industry: The Materials
+                </span>
+
+                <span className="mt-1 block text-[#d4db62]">
+                  &amp; Mobility Revolution
+                  <span className="text-[#c46a44]">.</span>
+                </span>
               </h1>
-              <p className="mt-7 max-w-xl border-l-2 border-[#c46a44] pl-4 text-sm leading-6 text-[#d4d7cf] sm:text-base sm:leading-7">
-                {CONFERENCE.tagline}
-              </p>
-              <p className="mt-8 max-w-lg text-sm leading-6 text-[#aeb3a9]">
-                {CONFERENCE.description}
-              </p>
-              <div className="mt-9 flex flex-wrap items-center gap-3">
-                <Link href="#registration" className="inline-flex min-h-12 items-center gap-3 bg-[#d4db62] px-5 text-sm font-bold text-[#171916] transition-colors hover:bg-[#e4eb7b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4db62]">
-                  Explore registration <ArrowRight aria-hidden="true" className="h-4 w-4" />
-                </Link>
-                <a href="#focus-areas" className="inline-flex min-h-12 items-center gap-2 px-4 text-sm font-medium text-[#f7f7f3] transition-colors hover:text-[#d4db62] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d4db62]">
-                  Explore the themes <ArrowDown aria-hidden="true" className="h-4 w-4" />
-                </a>
-              </div>
             </div>
 
-            <aside aria-label="Event date and format" className="page-arrive page-arrive-late border-t border-[#555a51] pt-6 lg:ml-auto lg:w-full lg:max-w-sm lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
-              <div className="flex items-end gap-3">
-                <p className="text-[5.4rem] font-semibold leading-[0.78] tracking-[-0.08em] text-[#d4db62] sm:text-[7rem]">31</p>
-                <div className="pb-1">
-                  <p className="text-sm font-bold uppercase tracking-[0.16em]">October</p>
-                  <p className="mt-1 text-xs text-[#aeb3a9]">Saturday · 2026</p>
+            {/* Supporting content and event details */}
+            <div className="mt-10 grid gap-10 sm:mt-12 lg:grid-cols-[1.3fr_0.7fr] lg:items-end">
+              <div className="page-arrive page-arrive-late">
+                <p className="max-w-xl border-l-2 border-[#c46a44] pl-4 text-sm leading-6 text-[#d4d7cf] sm:text-base sm:leading-7">
+                  {CONFERENCE.tagline}
+                </p>
+
+                <p className="mt-6 max-w-lg text-sm leading-6 text-[#c0c4bb]">
+                  {CONFERENCE.description}
+                </p>
+
+                <div className="mt-8 flex flex-wrap items-center gap-3">
+                  <Link
+                    href="#registration"
+                    className="inline-flex min-h-12 items-center gap-3 bg-[#d4db62] px-5 text-sm font-bold text-[#171916] transition-colors hover:bg-[#e4eb7b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4db62]"
+                  >
+                    Explore registration
+                    <ArrowRight aria-hidden="true" className="h-4 w-4" />
+                  </Link>
+
+                  <a
+                    href="#focus-areas"
+                    className="inline-flex min-h-12 items-center gap-2 px-4 text-sm font-medium text-[#f7f7f3] transition-colors hover:text-[#d4db62] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d4db62]"
+                  >
+                    Explore the themes
+                    <ArrowDown aria-hidden="true" className="h-4 w-4" />
+                  </a>
                 </div>
               </div>
-              <div className="mt-5 flex items-center gap-3 border-y border-[#555a51] py-3">
-                <span className="text-3xl font-light text-[#c46a44]">/</span>
-                <p className="text-sm font-bold uppercase tracking-[0.16em]">01 NOV 2026</p>
-                <span className="ml-auto text-[10px] uppercase tracking-[0.16em] text-[#aeb3a9]">Sunday</span>
-              </div>
-              <div className="mt-6 flex items-center gap-3 text-sm">
-                <span className="grid h-9 w-9 place-items-center border border-[#555a51] text-[#d4db62]"><MonitorPlay aria-hidden="true" className="h-4 w-4" /></span>
-                <span><span className="block font-semibold">Virtual event</span><span className="mt-0.5 block text-xs text-[#aeb3a9]">Join online · October 31 – November 1</span></span>
-              </div>
-            </aside>
+
+              <aside
+                aria-label="Event date and format"
+                className="page-arrive page-arrive-late border-t border-white/30 pt-6 lg:ml-auto lg:w-full lg:max-w-sm lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0"
+              >
+                <div className="flex items-end gap-3">
+                  <p className="text-[5.4rem] font-semibold leading-[0.78] tracking-[-0.08em] text-[#d4db62] sm:text-[7rem]">
+                    31
+                  </p>
+
+                  <div className="pb-1">
+                    <p className="text-sm font-bold uppercase tracking-[0.16em]">
+                      October
+                    </p>
+                    <p className="mt-1 text-xs text-[#d4d7cf]">
+                      Saturday · 2026
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-5 flex items-center gap-3 border-y border-white/30 py-3">
+                  <span className="text-3xl font-light text-[#c46a44]">
+                    /
+                  </span>
+                  <p className="text-sm font-bold uppercase tracking-[0.16em]">
+                    01 NOV 2026
+                  </p>
+                  <span className="ml-auto text-[10px] uppercase tracking-[0.16em] text-[#d4d7cf]">
+                    Sunday
+                  </span>
+                </div>
+
+                <div className="mt-6 flex items-center gap-3 text-sm">
+                  <span className="grid h-9 w-9 place-items-center border border-white/30 text-[#d4db62]">
+                    <MonitorPlay aria-hidden="true" className="h-4 w-4" />
+                  </span>
+                  <span>
+                    <span className="block font-semibold">Virtual event</span>
+                    <span className="mt-0.5 block text-xs text-[#d4d7cf]">
+                      Join online · October 31 – November 1
+                    </span>
+                  </span>
+                </div>
+              </aside>
+            </div>
           </div>
-          <div aria-hidden="true" className="absolute bottom-0 right-0 hidden h-2 w-[36%] bg-[#c46a44] lg:block" />
+
+          <div
+            aria-hidden="true"
+            className="absolute bottom-0 right-0 h-1.5 w-[36%] bg-[#c46a44]"
+          />
         </section>
+
 
         <section aria-labelledby="overview-heading" className="border-b border-[#d4d7cf] bg-white">
           <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8 lg:px-12">
@@ -251,12 +337,12 @@ export default function Home() {
               </li>
               <li className="flex gap-4 py-4">
                 <span className="grid h-9 w-9 shrink-0 place-items-center border border-[#555a51] text-[#d4db62]"><CreditCard aria-hidden="true" className="h-4 w-4" /></span>
-                <span><span className="block text-sm font-semibold">Pay the published fee</span><span className="mt-1 block text-xs leading-5 text-[#aeb3a9]">Your registration is saved first. Proceed to the category’s predefined Razorpay Payment Link for the displayed GST-inclusive total. Document review is separate from payment status.</span></span>
+                <span><span className="block text-sm font-semibold">Pay the published fee</span><span className="mt-1 block text-xs leading-5 text-[#aeb3a9]">Your registration is saved first. Proceed to the category’s specific Razorpay Payment Channel for the displayed GST-inclusive total. Document review is separate from payment status.</span></span>
                 <span className="ml-auto pt-1 font-mono text-[10px] text-[#aeb3a9]">02</span>
               </li>
               <li className="flex gap-4 py-4 last:pb-0">
                 <span className="grid h-9 w-9 shrink-0 place-items-center border border-[#555a51] text-[#d4db62]"><Check aria-hidden="true" className="h-4 w-4" /></span>
-                <span><span className="block text-sm font-semibold">Wait for confirmation</span><span className="mt-1 block text-xs leading-5 text-[#aeb3a9]">Registration status is confirmed only after the server receives the payment webhook.</span></span>
+                <span><span className="block text-sm font-semibold">Wait for confirmation</span><span className="mt-1 block text-xs leading-5 text-[#aeb3a9]">It Usually Takes 2-3 Hours for the registration to be confirmed.</span></span>
                 <span className="ml-auto pt-1 font-mono text-[10px] text-[#aeb3a9]">03</span>
               </li>
             </ol>
@@ -267,7 +353,7 @@ export default function Home() {
       <footer className="border-t border-[#d4d7cf] bg-[#f7f7f3]">
         <div className="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-7 sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-12">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.12em]">JUST POLYMER SOLUTIONS</p>
+            {/* <p className="text-xs font-bold uppercase tracking-[0.12em]">JUST POLYMER SOLUTIONS</p> */}
             <p className="mt-1 text-[11px] text-[#646960]">Chem Petchem Education Drive · Virtual Industry Programme</p>
           </div>
           <p className="flex items-center gap-2 text-xs text-[#555b52]"><CalendarDays aria-hidden="true" className="h-4 w-4 text-[#a84e2b]" /> October 31 – November 1, 2026</p>

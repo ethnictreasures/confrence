@@ -4,10 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { z } from 'zod';
 import {
   studentRegistrationSchema,
   type StudentRegistrationInput,
-} from "@/lib/validation";
+} from '@/lib/validation';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,7 +32,11 @@ export default function StudentRegistrationForm() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<StudentRegistrationInput>({
+  } = useForm<
+    z.input<typeof studentRegistrationSchema>,
+    unknown,
+    StudentRegistrationInput
+  >({
     resolver: zodResolver(studentRegistrationSchema),
   });
 

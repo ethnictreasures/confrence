@@ -1,0 +1,1 @@
+ALTER TABLE "registrations" ADD COLUMN "razorpay_order_id" varchar(255);

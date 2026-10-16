@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, Clock, RefreshCw, Download } from 'lucide-react';
 import Link from 'next/link';
+import VerifyPaymentButton from './VerifyPaymentButton';
 
 async function getRegistration(id: string) {
   try {
@@ -113,40 +114,50 @@ export default async function ConfirmPage({ params }: { params: Promise<{ id: st
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Payment Status:</span>
-                    <span className={`font-medium capitalize ${
-                      registration.paymentStatus === 'paid' ? 'text-green-600' :
+                    <span className={`font-medium capitalize ${registration.paymentStatus === 'paid' ? 'text-green-600' :
                       registration.paymentStatus === 'failed' ? 'text-red-600' :
-                      'text-yellow-600'
-                    }`}>
+                        'text-yellow-600'
+                      }`}>
                       {registration.paymentStatus.replace('_', ' ')}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Document Verification:</span>
-                    <span className={`font-medium capitalize ${
-                      registration.verificationStatus === 'approved' ? 'text-green-600' :
+                    <span className={`font-medium capitalize ${registration.verificationStatus === 'approved' ? 'text-green-600' :
                       registration.verificationStatus === 'rejected' ? 'text-red-600' :
-                      'text-yellow-600'
-                    }`}>
+                        'text-yellow-600'
+                      }`}>
                       {registration.verificationStatus.replace('_', ' ')}
                     </span>
                   </div>
                 </div>
               </div>
 
+
               {canRetryPayment && (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                  <h3 className="font-semibold text-yellow-900 mb-2">Payment Not Complete</h3>
+                  <h3 className="font-semibold text-yellow-900 mb-2">
+                    Payment Not Complete
+                  </h3>
+
                   <p className="text-sm text-gray-700 mb-4">
-                    Your payment has not been completed yet. Please complete the payment to finalize your registration.
+                    If you have already completed the payment, verify its status before
+                    attempting another payment.
                   </p>
-                  <Link href={`/register/payment/${registration.id}`}>
-                    <Button className="w-full" asChild>
-                      <a>Complete Payment</a>
+
+                  <VerifyPaymentButton registrationId={registration.id} />
+
+                  <Link
+                    href={`/register/payment/${registration.id}`}
+                    className="mt-3 block"
+                  >
+                    <Button variant="outline" className="w-full">
+                      Proceed to Payment
                     </Button>
                   </Link>
                 </div>
               )}
+
 
               {registration.paymentStatus === 'requires_reconciliation' && (
                 <div className="rounded-lg border border-orange-200 bg-orange-50 p-4">
@@ -184,13 +195,11 @@ export default async function ConfirmPage({ params }: { params: Promise<{ id: st
                 </div>
               )}
 
-              <div className="flex gap-4">
-                <Link href={`/register/payment/${registration.id}`} className="flex-1">
-                  <Button variant="outline" className="w-full">
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Refresh Status
-                  </Button>
-                </Link>
+              <div className="flex flex-col gap-4">
+                {registration.paymentStatus !== 'paid' && (
+                  <VerifyPaymentButton registrationId={registration.id} />
+                )}
+
                 <Link href="/" className="flex-1">
                   <Button variant="outline" className="w-full">
                     Back to Home
