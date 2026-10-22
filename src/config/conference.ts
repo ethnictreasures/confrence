@@ -34,16 +34,16 @@ export const CONFERENCE = {
 
 export const REGISTRATION_PRICING = {
   student: {
-    baseFeePaise: 99900,
-    gstRate: 18,
-    gstAmountPaise: 18000,
-    totalAmountPaise: 117900,
+    baseFeePaise: 0,
+    gstRate: 0,
+    gstAmountPaise: 0,
+    totalAmountPaise: 0,
   },
   industry_professional: {
-    baseFeePaise: 199900,
-    gstRate: 18,
-    gstAmountPaise: 36000,
-    totalAmountPaise: 235900,
+    baseFeePaise: 0,
+    gstRate: 0,
+    gstAmountPaise: 0,
+    totalAmountPaise: 0,
   },
 } as const;
 

@@ -284,7 +284,7 @@ export default function Home() {
                 <CardContent className="px-6 py-5 sm:px-8">
                   <dl className="space-y-2.5 text-sm">
                     <div className="flex justify-between gap-4 text-[#555b52]"><dt>Base price</dt><dd className="font-medium text-[#171916]">{formatRupees(REGISTRATION_PRICING.student.baseFeePaise)}</dd></div>
-                    <div className="flex justify-between gap-4 text-[#555b52]"><dt>GST ({REGISTRATION_PRICING.student.gstRate}%)</dt><dd className="font-medium text-[#171916]">{formatRupees(REGISTRATION_PRICING.student.gstAmountPaise)}</dd></div>
+                    {/* <div className="flex justify-between gap-4 text-[#555b52]"><dt>GST ({REGISTRATION_PRICING.student.gstRate}%)</dt><dd className="font-medium text-[#171916]">{formatRupees(REGISTRATION_PRICING.student.gstAmountPaise)}</dd></div> */}
                     <div className="mt-4 flex items-end justify-between gap-4 border-t border-[#d4d7cf] pt-4"><dt className="text-xs font-bold uppercase tracking-[0.1em]">Total</dt><dd className="text-3xl font-semibold tracking-[-0.05em]">{formatRupees(REGISTRATION_PRICING.student.totalAmountPaise)}</dd></div>
                   </dl>
                   <div className="mt-6 border-l-2 border-[#d4db62] pl-3 text-xs leading-5 text-[#555b52]"><span className="font-semibold text-[#171916]">Document:</span> Upload a valid student ID for review.</div>
@@ -308,7 +308,7 @@ export default function Home() {
                 <CardContent className="px-6 py-5 sm:px-8">
                   <dl className="space-y-2.5 text-sm">
                     <div className="flex justify-between gap-4 text-[#555b52]"><dt>Base price</dt><dd className="font-medium text-[#171916]">{formatRupees(REGISTRATION_PRICING.industry_professional.baseFeePaise)}</dd></div>
-                    <div className="flex justify-between gap-4 text-[#555b52]"><dt>GST ({REGISTRATION_PRICING.industry_professional.gstRate}%)</dt><dd className="font-medium text-[#171916]">{formatRupees(REGISTRATION_PRICING.industry_professional.gstAmountPaise)}</dd></div>
+                    {/* <div className="flex justify-between gap-4 text-[#555b52]"><dt>GST ({REGISTRATION_PRICING.industry_professional.gstRate}%)</dt><dd className="font-medium text-[#171916]">{formatRupees(REGISTRATION_PRICING.industry_professional.gstAmountPaise)}</dd></div> */}
                     <div className="mt-4 flex items-end justify-between gap-4 border-t border-[#d4d7cf] pt-4"><dt className="text-xs font-bold uppercase tracking-[0.1em]">Total</dt><dd className="text-3xl font-semibold tracking-[-0.05em]">{formatRupees(REGISTRATION_PRICING.industry_professional.totalAmountPaise)}</dd></div>
                   </dl>
                   <div className="mt-6 border-l-2 border-[#c46a44] pl-3 text-xs leading-5 text-[#555b52]"><span className="font-semibold text-[#171916]">Document:</span> Upload proof of employment or professional identity for review.</div>

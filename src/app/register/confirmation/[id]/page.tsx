@@ -35,24 +35,24 @@ export default async function ConfirmationPage({
     notFound();
   }
 
-  const isPaid = registration.paymentStatus === 'paid';
+  // const isPaid = registration.paymentStatus === 'paid';
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12">
       <div className="w-full max-w-xl rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-        {isPaid ? (
+        {/* {isPaid ? ( */}
           <>
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-3xl text-green-700">
               ✓
             </div>
 
-            <h1 className="mt-5 text-2xl font-bold text-slate-900">
+            {/* <h1 className="mt-5 text-2xl font-bold text-slate-900">
               Payment Successful!
-            </h1>
+            </h1> */}
 
             <p className="mt-3 text-slate-600">
-              Your conference registration payment has been
-              verified successfully.
+              Your conference registration has been
+              completed successfully.you will receice an email with the conference details and zoom link later.
             </p>
 
             <div className="mt-6 rounded-xl bg-slate-50 p-5 text-left">
@@ -70,14 +70,14 @@ export default async function ConfirmationPage({
                 {registration.fullName}
               </p>
 
-              <p className="mt-4 text-sm text-slate-500">
+              {/* <p className="mt-4 text-sm text-slate-500">
                 Payment Status
               </p>
               <p className="mt-1 font-semibold text-green-700">
                 Paid
-              </p>
+              </p> */}
 
-              {registration.razorpayPaymentId && (
+              {/* {registration.razorpayPaymentId && (
                 <>
                   <p className="mt-4 text-sm text-slate-500">
                     Razorpay Payment ID
@@ -86,7 +86,7 @@ export default async function ConfirmationPage({
                     {registration.razorpayPaymentId}
                   </p>
                 </>
-              )}
+              )} */}
             </div>
 
             <p className="mt-5 text-sm text-slate-600">
@@ -94,7 +94,7 @@ export default async function ConfirmationPage({
               reference.
             </p>
           </>
-        ) : (
+        {/* ) : (
           <>
             <h1 className="text-2xl font-bold text-slate-900">
               Payment Confirmation Pending
@@ -118,8 +118,8 @@ export default async function ConfirmationPage({
             >
               Return to Payment Page
             </Link>
-          </>
-        )}
+          </> */}
+        {/* )} */}
       </div>
     </main>
   );

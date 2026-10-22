@@ -98,7 +98,11 @@ export default function IndustryRegistrationForm() {
       const result = await registrationResponse.json();
       setUploadProgress(100);
 
-      router.push(`/register/payment/${result.registrationId}`);
+      // router.push(`/register/payment/${result.registrationId}`);
+      router.push(
+              `/register/confirmation/${result.registrationId}`
+            );
+      // router.push(`/register/payment/${result.registrationId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
       setUploadProgress(0);

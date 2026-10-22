@@ -133,7 +133,10 @@ try {
       setUploadProgress(100);
 
       // Redirect to payment page
-      router.push(`/register/payment/${result.registrationId}`);
+      // router.push(`/register/payment/${result.registrationId}`);
+      router.push(
+              `/register/confirmation/${result.registrationId}`
+            );
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
       setUploadProgress(0);
