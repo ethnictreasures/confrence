@@ -48,8 +48,8 @@ export async function POST(request: NextRequest) {
         totalAmountPaise: pricing.totalAmountPaise,
         currency: 'INR',
         verificationStatus: 'pending',
-        paymentStatus: 'skipped',
-        paymentReconciliationStatus: 'skipped',
+        // paymentStatus: 'paid',
+        // paymentReconciliationStatus: 'paid',
       })
       .returning();
 
